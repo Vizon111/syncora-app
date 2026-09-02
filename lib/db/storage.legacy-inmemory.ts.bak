@@ -1,0 +1,1604 @@
+import {
+  User,
+  Workspace,
+  WorkspaceMember,
+  Project,
+  Sprint,
+  Task,
+  WorklogItem,
+  Document,
+  DocumentVersion,
+  DocumentChunk,
+  Comment,
+  FileItem,
+  ActivityLog,
+  AiMessage,
+  Role,
+  RetroItem,
+  SprintRetroSummary,
+  RetroCategory,
+} from '@/lib/types';
+import { hasPermission, Permission } from './rbac';
+
+// Global server memory store to maintain state across route calls in container
+class DatabaseStore {
+  public users: Map<string, User> = new Map();
+  public workspaces: Map<string, Workspace> = new Map();
+  public workspaceMembers: Map<string, WorkspaceMember> = new Map(); // key: workspaceId_userId
+  public projects: Map<string, Project> = new Map();
+  public sprints: Map<string, Sprint> = new Map();
+  public retroItems: Map<string, RetroItem> = new Map();
+  public sprintRetroSummaries: Map<string, SprintRetroSummary> = new Map();
+  public tasks: Map<string, Task> = new Map();
+  public documents: Map<string, Document> = new Map();
+  public documentVersions: Map<string, DocumentVersion[]> = new Map(); // key: docId
+  public documentChunks: Map<string, DocumentChunk[]> = new Map(); // key: workspaceId
+  public comments: Map<string, Comment> = new Map();
+  public files: Map<string, FileItem> = new Map();
+  public activities: Map<string, ActivityLog[]> = new Map(); // key: workspaceId
+  public aiMessages: Map<string, AiMessage[]> = new Map(); // key: workspaceId
+
+  constructor() {
+    this.seedInitialData();
+  }
+
+  public seedInitialData() {
+    // 1. Seed Users
+    const u1: User = {
+      id: 'usr_elena',
+      name: 'Elena Rostova',
+      email: 'elena@flowspace.io',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+      color: '#6366f1',
+      role: 'owner',
+      status: 'online',
+    };
+    const u2: User = {
+      id: 'usr_alex',
+      name: 'Alex Mercer',
+      email: 'alex@flowspace.io',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      color: '#06b6d4',
+      role: 'admin',
+      status: 'online',
+    };
+    const u3: User = {
+      id: 'usr_sophia',
+      name: 'Sophia Chen',
+      email: 'sophia@flowspace.io',
+      avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+      color: '#10b981',
+      role: 'member',
+      status: 'idle',
+    };
+    const u4: User = {
+      id: 'usr_liam',
+      name: 'Liam Vance',
+      email: 'liam@clientcorp.com',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+      color: '#f59e0b',
+      role: 'viewer',
+      status: 'offline',
+    };
+    const uDemo: User = {
+      id: 'usr_demo',
+      name: 'Demo Lead Engineer',
+      email: 'demo@example.com',
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+      color: '#8b5cf6',
+      role: 'owner',
+      status: 'online',
+    };
+
+    [u1, u2, u3, u4, uDemo].forEach((u) => this.users.set(u.id, u));
+
+    // 2. Seed Workspaces
+    const ws1: Workspace = {
+      id: 'ws_acme',
+      name: 'Acme Digital Agency',
+      slug: 'acme-agency',
+      avatar: '✨',
+      ownerId: u1.id,
+      plan: 'pro',
+      createdAt: '2026-01-15T09:00:00Z',
+      membersCount: 5,
+    };
+    const ws2: Workspace = {
+      id: 'ws_alpha',
+      name: 'Alpha Labs & AI Systems',
+      slug: 'alpha-labs',
+      avatar: '🚀',
+      ownerId: uDemo.id,
+      plan: 'enterprise',
+      createdAt: '2026-02-01T10:00:00Z',
+      membersCount: 4,
+    };
+
+    [ws1, ws2].forEach((ws) => this.workspaces.set(ws.id, ws));
+
+    // 3. Workspace Members
+    const addMember = (wsId: string, user: User, role: Role) => {
+      this.workspaceMembers.set(`${wsId}_${user.id}`, {
+        userId: user.id,
+        workspaceId: wsId,
+        role,
+        joinedAt: '2026-01-15T09:00:00Z',
+        user: { ...user, role },
+      });
+    };
+
+    addMember('ws_acme', u1, 'owner');
+    addMember('ws_acme', u2, 'admin');
+    addMember('ws_acme', u3, 'member');
+    addMember('ws_acme', u4, 'viewer');
+    addMember('ws_acme', uDemo, 'owner');
+
+    addMember('ws_alpha', uDemo, 'owner');
+    addMember('ws_alpha', u2, 'admin');
+    addMember('ws_alpha', u3, 'member');
+    addMember('ws_alpha', u1, 'member');
+
+    // 4. Seed Projects
+    const p1: Project = {
+      id: 'prj_flowspace_core',
+      workspaceId: 'ws_acme',
+      name: 'Flowspace Next-Gen Platform',
+      description: 'Unified real-time collaborative workspace with CRDT editor and AI knowledge engine.',
+      status: 'in_progress',
+      progress: 68,
+      budget: '$45,000',
+      deadline: '2026-09-30T18:00:00Z',
+      leadId: u1.id,
+      lead: u1,
+      memberIds: [u1.id, u2.id, u3.id, uDemo.id],
+      tags: ['Frontend', 'Realtime', 'AI-RAG', 'CRDT'],
+      createdAt: '2026-02-10T11:00:00Z',
+      updatedAt: '2026-08-20T14:30:00Z',
+    };
+
+    const p2: Project = {
+      id: 'prj_design_system',
+      workspaceId: 'ws_acme',
+      name: 'Design System & Token Architecture',
+      description: 'High-contrast accessible theme tokens, interactive Kanban components, and live collaboration indicators.',
+      status: 'in_progress',
+      progress: 85,
+      budget: '$18,000',
+      deadline: '2026-09-15T18:00:00Z',
+      leadId: u2.id,
+      lead: u2,
+      memberIds: [u2.id, u3.id],
+      tags: ['UI/UX', 'Tailwind', 'Accessibility'],
+      createdAt: '2026-03-01T09:00:00Z',
+      updatedAt: '2026-08-22T10:15:00Z',
+    };
+
+    const p3: Project = {
+      id: 'prj_ai_knowledge',
+      workspaceId: 'ws_acme',
+      name: 'RAG Knowledge Pipeline & Embeddings',
+      description: 'Multi-tenant document ingestion, chunking algorithms, vector index retrieval, and LLM citation synthesis.',
+      status: 'review',
+      progress: 92,
+      budget: '$30,000',
+      deadline: '2026-09-10T18:00:00Z',
+      leadId: u3.id,
+      lead: u3,
+      memberIds: [u1.id, u3.id, uDemo.id],
+      tags: ['AI', 'Vector-DB', 'Security', 'Gemini'],
+      createdAt: '2026-03-15T08:00:00Z',
+      updatedAt: '2026-08-25T16:00:00Z',
+    };
+
+    [p1, p2, p3].forEach((p) => this.projects.set(p.id, p));
+
+    // 5. Seed Sprints
+    const spr13: Sprint = {
+      id: 'spr_13',
+      workspaceId: 'ws_acme',
+      projectId: 'prj_flowspace_core',
+      name: 'Sprint 13: Core Workspace Architecture',
+      goal: 'Multi-tenant isolation, RBAC role enforcement, and PRD specifications foundation.',
+      startDate: '2026-08-06T09:00:00Z',
+      endDate: '2026-08-20T18:00:00Z',
+      status: 'completed',
+      totalStoryPoints: 21,
+      completedStoryPoints: 21,
+      createdAt: '2026-08-05T10:00:00Z',
+      updatedAt: '2026-08-20T18:00:00Z',
+    };
+
+    const spr14: Sprint = {
+      id: 'spr_14',
+      workspaceId: 'ws_acme',
+      projectId: 'prj_flowspace_core',
+      name: 'Sprint 14: Realtime Engine & Agile Sprints',
+      goal: 'Deliver CRDT binary sync, Story Points estimation, live worklog time tracking, and Sprint Burndown analytics.',
+      startDate: '2026-08-20T09:00:00Z',
+      endDate: '2026-09-03T18:00:00Z',
+      status: 'active',
+      totalStoryPoints: 24,
+      completedStoryPoints: 8,
+      createdAt: '2026-08-19T14:00:00Z',
+      updatedAt: '2026-08-27T10:00:00Z',
+    };
+
+    const spr15: Sprint = {
+      id: 'spr_15',
+      workspaceId: 'ws_acme',
+      projectId: 'prj_flowspace_core',
+      name: 'Sprint 15: AI Agents & Integrations',
+      goal: 'Autonomous PRD extraction agents, Webhook connectors, and external workspace exports.',
+      startDate: '2026-09-03T09:00:00Z',
+      endDate: '2026-09-17T18:00:00Z',
+      status: 'draft',
+      totalStoryPoints: 18,
+      completedStoryPoints: 0,
+      createdAt: '2026-08-26T16:00:00Z',
+      updatedAt: '2026-08-26T16:00:00Z',
+    };
+
+    [spr13, spr14, spr15].forEach((s) => this.sprints.set(s.id, s));
+
+    // 5.1 Seed Retrospective Items for Sprint 13 (Completed) & Sprint 14 (Active)
+    const seedRetros: RetroItem[] = [
+      // Sprint 13 Retro
+      {
+        id: 'ret_13_1',
+        workspaceId: 'ws_acme',
+        sprintId: 'spr_13',
+        category: 'went_well',
+        title: 'Четкая спецификация RBAC и изоляции арендаторов',
+        description: 'Команда быстро согласовала модель ролей и правил безопасности без блокировок.',
+        votes: 4,
+        votedUserIds: [u1.id, u2.id, u3.id, uDemo.id],
+        authorId: u1.id,
+        authorName: u1.name,
+        authorAvatar: u1.avatar,
+        createdAt: '2026-08-20T18:30:00Z',
+      },
+      {
+        id: 'ret_13_2',
+        workspaceId: 'ws_acme',
+        sprintId: 'spr_13',
+        category: 'went_well',
+        title: '100% закрытие запланированных Story Points (21/21 SP)',
+        description: 'Успешно выдержали объем работ без овертаймов благодаря точной оценке на планировании.',
+        votes: 3,
+        votedUserIds: [u2.id, u3.id, uDemo.id],
+        authorId: u2.id,
+        authorName: u2.name,
+        authorAvatar: u2.avatar,
+        createdAt: '2026-08-20T18:35:00Z',
+      },
+      {
+        id: 'ret_13_3',
+        workspaceId: 'ws_acme',
+        sprintId: 'spr_13',
+        category: 'to_improve',
+        title: 'Код-ревью зависало до 48 часов на сложных PR',
+        description: 'Задачи в статусе Review скапливались к концу недели, создавая узкое горлышко перед релизом.',
+        votes: 5,
+        votedUserIds: [u1.id, u2.id, u3.id, u4.id, uDemo.id],
+        authorId: u3.id,
+        authorName: u3.name,
+        authorAvatar: u3.avatar,
+        createdAt: '2026-08-20T18:40:00Z',
+      },
+      {
+        id: 'ret_13_4',
+        workspaceId: 'ws_acme',
+        sprintId: 'spr_13',
+        category: 'insight',
+        title: 'Декомпозиция на задачи до 5 SP снижает cycle time на 35%',
+        description: 'Крупные задачи блокируют параллельную работу. Стоит декомпозировать все задачи >5 SP.',
+        votes: 4,
+        votedUserIds: [u1.id, u2.id, u3.id, uDemo.id],
+        authorId: uDemo.id,
+        authorName: uDemo.name,
+        authorAvatar: uDemo.avatar,
+        createdAt: '2026-08-20T18:45:00Z',
+      },
+      {
+        id: 'ret_13_5',
+        workspaceId: 'ws_acme',
+        sprintId: 'spr_13',
+        category: 'action_item',
+        title: 'Внедрить лимит WIP (Work In Progress) в колонке Review max 3 задачи',
+        description: 'Если в Review >3 задач, команда приостанавливает взятие новых задач и помогает с ревью.',
+        votes: 5,
+        votedUserIds: [u1.id, u2.id, u3.id, uDemo.id],
+        authorId: u1.id,
+        authorName: u1.name,
+        authorAvatar: u1.avatar,
+        status: 'completed',
+        assigneeId: u2.id,
+        assigneeName: u2.name,
+        dueDate: '2026-08-25',
+        priority: 'high',
+        createdAt: '2026-08-20T18:50:00Z',
+      },
+      {
+        id: 'ret_13_6',
+        workspaceId: 'ws_acme',
+        sprintId: 'spr_13',
+        category: 'kudos',
+        title: 'Огромное спасибо Марии за молниеносный фикс RAG чанков!',
+        description: 'Мария в выходной оперативно стабилизировала эмбеддинги для демонстрации клиенту.',
+        votes: 4,
+        votedUserIds: [u1.id, u2.id, u3.id, uDemo.id],
+        authorId: u1.id,
+        authorName: u1.name,
+        authorAvatar: u1.avatar,
+        createdAt: '2026-08-20T18:55:00Z',
+      },
+
+      // Sprint 14 Retro (Active Sprint)
+      {
+        id: 'ret_14_1',
+        workspaceId: 'ws_acme',
+        sprintId: 'spr_14',
+        category: 'went_well',
+        title: 'Yjs CRDT синхронизация работает плавно и без задержек',
+        description: 'Отличная скорость бинарной дельты даже при плохом соединении.',
+        votes: 3,
+        votedUserIds: [u1.id, u3.id, uDemo.id],
+        authorId: u3.id,
+        authorName: u3.name,
+        authorAvatar: u3.avatar,
+        createdAt: '2026-08-26T12:00:00Z',
+      },
+      {
+        id: 'ret_14_2',
+        workspaceId: 'ws_acme',
+        sprintId: 'spr_14',
+        category: 'to_improve',
+        title: 'Недостаточно тестовых данных для нагрузочного тестирования Канбана',
+        description: 'Нужен генератор синтетических задач для проверки производительности на 500+ карточках.',
+        votes: 2,
+        votedUserIds: [u2.id, uDemo.id],
+        authorId: u2.id,
+        authorName: u2.name,
+        authorAvatar: u2.avatar,
+        createdAt: '2026-08-26T14:30:00Z',
+      },
+      {
+        id: 'ret_14_3',
+        workspaceId: 'ws_acme',
+        sprintId: 'spr_14',
+        category: 'action_item',
+        title: 'Настроить автоматический Burndown health check в начале каждого дня',
+        description: 'AI ассистент должен уведомлять лида о риске срыва сроков при отклонении >15% от идеальной линии.',
+        votes: 3,
+        votedUserIds: [u1.id, u2.id, uDemo.id],
+        authorId: uDemo.id,
+        authorName: uDemo.name,
+        authorAvatar: uDemo.avatar,
+        status: 'in_progress',
+        assigneeId: u1.id,
+        assigneeName: u1.name,
+        dueDate: '2026-09-02',
+        priority: 'high',
+        createdAt: '2026-08-27T09:15:00Z',
+      },
+      {
+        id: 'ret_14_4',
+        workspaceId: 'ws_acme',
+        sprintId: 'spr_14',
+        category: 'insight',
+        title: 'Живые курсоры повышают вовлеченность дизайнеров и продактов',
+        description: 'Во время совместного составления PRD совместная правка проходит в 2 раза быстрее.',
+        votes: 2,
+        votedUserIds: [u1.id, u2.id],
+        authorId: u1.id,
+        authorName: u1.name,
+        authorAvatar: u1.avatar,
+        createdAt: '2026-08-27T11:00:00Z',
+      },
+    ];
+
+    seedRetros.forEach((r) => this.retroItems.set(r.id, r));
+
+    // 6. Seed Tasks
+    const tasksData: Task[] = [
+      {
+        id: 'tsk_101',
+        workspaceId: 'ws_acme',
+        projectId: 'prj_flowspace_core',
+        sprintId: 'spr_14',
+        title: 'Implement Yjs binary state vector synchronization over SSE/WebSocket',
+        description: 'Ensure state deltas reconcile without losing concurrent edits. Add fallback to local memory buffer during reconnect.',
+        status: 'done',
+        priority: 'urgent',
+        storyPoints: 8,
+        estimatedHours: 16,
+        loggedHours: 14.5,
+        worklogs: [
+          {
+            id: 'wl_101_1',
+            taskId: 'tsk_101',
+            userId: u3.id,
+            user: u3,
+            hours: 6.5,
+            description: 'StateVector encoder and binary delta parser implementation',
+            loggedAt: '2026-08-22T15:00:00Z',
+          },
+          {
+            id: 'wl_101_2',
+            taskId: 'tsk_101',
+            userId: u3.id,
+            user: u3,
+            hours: 8,
+            description: 'Reconnect buffer queue & concurrency unit tests',
+            loggedAt: '2026-08-24T12:00:00Z',
+          },
+        ],
+        assigneeId: u3.id,
+        assignee: u3,
+        reporterId: u1.id,
+        reporter: u1,
+        dueDate: '2026-08-28T18:00:00Z',
+        labels: ['CRDT', 'Realtime', 'Backend'],
+        commentsCount: 3,
+        order: 1,
+        subtasks: [
+          { id: 'st_1', title: 'Setup Y.Doc and StateVector encoder', completed: true },
+          { id: 'st_2', title: 'Handle reconnect buffer queue', completed: true },
+          { id: 'st_3', title: 'Write concurrency unit test', completed: true },
+        ],
+        acceptanceCriteria: [
+          { id: 'ac_1', text: 'Concurrent edits merge without packet drops', satisfied: true },
+          { id: 'ac_2', text: 'Reconnect sync occurs in <150ms', satisfied: true },
+        ],
+        createdAt: '2026-08-10T10:00:00Z',
+        updatedAt: '2026-08-24T12:00:00Z',
+      },
+      {
+        id: 'tsk_102',
+        workspaceId: 'ws_acme',
+        projectId: 'prj_flowspace_core',
+        sprintId: 'spr_14',
+        title: 'Live multi-user cursor tracking with name badges & selection highlights',
+        description: 'Broadcast pointer coordinates and selected document ranges to active peers in the workspace room.',
+        status: 'in_progress',
+        priority: 'high',
+        storyPoints: 5,
+        estimatedHours: 12,
+        loggedHours: 7.5,
+        worklogs: [
+          {
+            id: 'wl_102_1',
+            taskId: 'tsk_102',
+            userId: u2.id,
+            user: u2,
+            hours: 4.5,
+            description: 'Coordinate transforms and resize listeners',
+            loggedAt: '2026-08-25T11:00:00Z',
+          },
+          {
+            id: 'wl_102_2',
+            taskId: 'tsk_102',
+            userId: u2.id,
+            user: u2,
+            hours: 3.0,
+            description: 'Cursor badge rendering and name tags',
+            loggedAt: '2026-08-26T16:00:00Z',
+          },
+        ],
+        assigneeId: u2.id,
+        assignee: u2,
+        reporterId: u1.id,
+        reporter: u1,
+        dueDate: '2026-08-30T18:00:00Z',
+        labels: ['UI', 'Collaboration', 'Presence'],
+        commentsCount: 2,
+        order: 2,
+        subtasks: [
+          { id: 'st_4', title: 'Calculate relative coordinates on editor resize', completed: true },
+          { id: 'st_5', title: 'Smooth lerp remote cursor movements', completed: false },
+        ],
+        acceptanceCriteria: [
+          { id: 'ac_3', text: 'Cursors smoothly interpolate with lerp factor 0.2', satisfied: false },
+          { id: 'ac_4', text: 'Peer inactive after 30s removes badge', satisfied: true },
+        ],
+        createdAt: '2026-08-12T14:00:00Z',
+        updatedAt: '2026-08-26T09:00:00Z',
+      },
+      {
+        id: 'tsk_103',
+        workspaceId: 'ws_acme',
+        projectId: 'prj_ai_knowledge',
+        sprintId: 'spr_14',
+        title: 'Multi-tenant RAG chunking and vector retrieval with citation verification',
+        description: 'Enforce workspaceId isolation at embedding query time. Return exact snippet line references in AI answers.',
+        status: 'review',
+        priority: 'urgent',
+        storyPoints: 8,
+        estimatedHours: 20,
+        loggedHours: 18,
+        worklogs: [
+          {
+            id: 'wl_103_1',
+            taskId: 'tsk_103',
+            userId: u3.id,
+            user: u3,
+            hours: 10,
+            description: 'Sliding window chunking algorithm and Gemini embeddings',
+            loggedAt: '2026-08-24T18:00:00Z',
+          },
+          {
+            id: 'wl_103_2',
+            taskId: 'tsk_103',
+            userId: u3.id,
+            user: u3,
+            hours: 8,
+            description: 'Cosine similarity ranking and tenant isolation tests',
+            loggedAt: '2026-08-26T15:00:00Z',
+          },
+        ],
+        assigneeId: u3.id,
+        assignee: u3,
+        reporterId: uDemo.id,
+        reporter: uDemo,
+        dueDate: '2026-09-02T18:00:00Z',
+        labels: ['AI', 'Security', 'RAG'],
+        commentsCount: 4,
+        order: 1,
+        subtasks: [
+          { id: 'st_6', title: 'Sliding window text chunker (400 tokens + 50 overlap)', completed: true },
+          { id: 'st_7', title: 'Embeddings generation via Gemini API', completed: true },
+          { id: 'st_8', title: 'Strict tenant filtering SQL query', completed: true },
+        ],
+        acceptanceCriteria: [
+          { id: 'ac_5', text: 'Top 3 citations include document title and snippet', satisfied: true },
+          { id: 'ac_6', text: 'Cross-tenant lookup returns zero results', satisfied: true },
+        ],
+        createdAt: '2026-08-15T11:00:00Z',
+        updatedAt: '2026-08-26T15:30:00Z',
+      },
+      {
+        id: 'tsk_104',
+        workspaceId: 'ws_acme',
+        projectId: 'prj_design_system',
+        sprintId: 'spr_14',
+        title: 'Kanban drag-and-drop smooth transitions and optimistic column updates',
+        description: 'Provide immediate visual feedback when dragging cards across Todo -> In Progress -> Review -> Done with instant revert on failure.',
+        status: 'in_progress',
+        priority: 'medium',
+        storyPoints: 3,
+        estimatedHours: 8,
+        loggedHours: 4.5,
+        worklogs: [
+          {
+            id: 'wl_104_1',
+            taskId: 'tsk_104',
+            userId: u1.id,
+            user: u1,
+            hours: 4.5,
+            description: 'Drag preview element & optimistic state transitions',
+            loggedAt: '2026-08-25T11:00:00Z',
+          },
+        ],
+        assigneeId: u1.id,
+        assignee: u1,
+        reporterId: u2.id,
+        reporter: u2,
+        dueDate: '2026-09-05T18:00:00Z',
+        labels: ['Kanban', 'Optimistic UI', 'UX'],
+        commentsCount: 1,
+        order: 3,
+        subtasks: [
+          { id: 'st_9', title: 'HTML5 Drag and Drop handlers with drag preview', completed: true },
+          { id: 'st_10', title: 'Realtime task:updated event broadcast', completed: true },
+        ],
+        acceptanceCriteria: [
+          { id: 'ac_7', text: 'Card position updates in DOM under 16ms', satisfied: true },
+        ],
+        createdAt: '2026-08-18T09:00:00Z',
+        updatedAt: '2026-08-25T11:00:00Z',
+      },
+      {
+        id: 'tsk_105',
+        workspaceId: 'ws_acme',
+        projectId: 'prj_flowspace_core',
+        sprintId: null, // Product Backlog
+        title: 'Automate Safe AI Actions: Task creation from PRD action items with modal confirmation',
+        description: 'AI extracts actionable bullet points from documents and presents a confirmation modal before writing to the database.',
+        status: 'todo',
+        priority: 'high',
+        storyPoints: 5,
+        estimatedHours: 14,
+        loggedHours: 0,
+        worklogs: [],
+        assigneeId: uDemo.id,
+        assignee: uDemo,
+        reporterId: u1.id,
+        reporter: u1,
+        dueDate: '2026-09-08T18:00:00Z',
+        labels: ['AI Actions', 'Safety', 'Productivity'],
+        commentsCount: 0,
+        order: 4,
+        subtasks: [
+          { id: 'st_11', title: 'Action schema definition and parser', completed: false },
+          { id: 'st_12', title: 'Confirmation modal dialog with preview', completed: false },
+        ],
+        acceptanceCriteria: [
+          { id: 'ac_8', text: 'Extracted items show title, priority and estimated story points', satisfied: false },
+          { id: 'ac_9', text: 'Requires user manual approval click before task is persisted', satisfied: false },
+        ],
+        createdAt: '2026-08-20T16:00:00Z',
+        updatedAt: '2026-08-20T16:00:00Z',
+      },
+      {
+        id: 'tsk_106',
+        workspaceId: 'ws_acme',
+        projectId: 'prj_flowspace_core',
+        sprintId: null, // Product Backlog
+        title: 'Workspace audit log exporter to CSV & JSON for enterprise compliance',
+        description: 'Allow workspace administrators to download historical actor trails and data modifications.',
+        status: 'todo',
+        priority: 'low',
+        storyPoints: 3,
+        estimatedHours: 6,
+        loggedHours: 0,
+        worklogs: [],
+        assigneeId: u2.id,
+        assignee: u2,
+        reporterId: u1.id,
+        reporter: u1,
+        dueDate: '2026-09-12T18:00:00Z',
+        labels: ['Compliance', 'Audit', 'Export'],
+        commentsCount: 0,
+        order: 5,
+        subtasks: [
+          { id: 'st_13', title: 'CSV serializer for activity logs', completed: false },
+          { id: 'st_14', title: 'Admin-only download endpoint', completed: false },
+        ],
+        acceptanceCriteria: [
+          { id: 'ac_10', text: 'Includes timestamp, actor, action, and target details', satisfied: false },
+        ],
+        createdAt: '2026-08-22T10:00:00Z',
+        updatedAt: '2026-08-22T10:00:00Z',
+      },
+    ];
+
+    tasksData.forEach((t) => this.tasks.set(t.id, t));
+
+    // 6. Seed Documents (Rich Markdown / PRD with full domain content for RAG)
+    const doc1Content = `# Product Requirements Document (PRD) — Flowspace Core
+
+## 1. Executive Summary
+Flowspace is an enterprise-grade collaborative workspace SaaS designed for digital agencies, software consultancies, and distributed engineering squads. It unifies **real-time CRDT document authoring**, **interactive Kanban task boards**, **tenant-isolated knowledge retrieval (RAG)**, and **safe AI task orchestration**.
+
+## 2. Key Architecture Pillars
+- **Conflict-Free Document Sync**: Powered by Yjs CRDT. Edits converge deterministically without centralized locking or data loss.
+- **Strict Multi-Tenant Isolation**: Every SQL query and vector embedding is strictly constrained by \`workspace_id\`.
+- **Role-Based Access Control (RBAC)**: Owner, Admin, Member, Viewer roles enforced server-side.
+- **RAG Knowledge Engine**: Workspace documents and files are chunked into 400-token blocks, embedded with Gemini embeddings, and retrieved using semantic cosine similarity.
+
+## 3. High-Priority Deliverables & Action Items
+1. [Action Item] Finalize CRDT binary state vector serialization for low-bandwidth environments.
+2. [Action Item] Implement user presence heartbeat (ping every 15s, timeout after 45s).
+3. [Action Item] Ensure AI citations link directly to the originating document anchor or task ID.
+4. [Action Item] Build export to Markdown and PDF for client reports.
+
+## 4. SLA & Performance Targets
+- Collaborative keystroke latency: < 50ms (p95)
+- Document sync convergence: < 150ms over standard WAN
+- AI RAG retrieval time: < 800ms for top-5 relevant chunks`;
+
+    const doc2Content = `# Architecture Decision Record (ADR-004): CRDT vs Operational Transformation
+
+## Status: ACCEPTED
+**Date:** 2026-03-01
+**Deciders:** Elena Rostova (Lead Architect), Alex Mercer (Staff Eng)
+
+## Context
+Flowspace requires a robust multi-user collaborative text editing engine. We evaluated two primary approaches:
+1. **Operational Transformation (OT)** (as used in Google Docs / ShareDB)
+2. **Conflict-Free Replicated Data Types (CRDT)** (as implemented in Yjs / Automerge)
+
+## Decision
+We choose **Yjs (CRDT)** as our core collaboration engine.
+
+### Justification:
+- **Peer-to-Peer & Server Independence**: CRDT operations are commutative and idempotent. Documents can be merged in any order without an authoritative central ordering sequencer.
+- **Superior Offline Support**: Users can edit offline for days, reconnect, and merge updates seamlessly without rebase conflicts.
+- **Memory & Wire Efficiency**: Yjs uses a highly optimized binary encoding format with struct-based delta compression, resulting in 10x lower memory overhead compared to legacy text CRDTs.
+- **Rich Presence**: Yjs awareness protocol cleanly decouples cursor positions from document content.`;
+
+    const doc3Content = `# Security, Tenant Isolation & Prompt Injection Defense
+
+## Multi-Tenant Defense in Depth
+1. **Server-Side Enforcement**: Permissions are computed on the server session JWT. Frontend permission flags are purely cosmetic for UI state.
+2. **Row-Level Tenant Guardrails**: All repository lookups require \`workspaceId\` parameter in the WHERE clause.
+3. **RAG Context Sanitization**:
+   - Chunks are enclosed in delimiter boundaries \`<<<DOCUMENT_START>>>\` and \`<<<DOCUMENT_END>>>\`.
+   - Prompt injection attempts (e.g., "ignore all previous instructions") inside user documents are neutralized via system instructions.
+   - If no relevant chunks score above 0.55 similarity, the AI explicitly replies: *"Не найдено достаточно информации в workspace."*`;
+
+    const d1: Document = {
+      id: 'doc_prd_core',
+      workspaceId: 'ws_acme',
+      projectId: 'prj_flowspace_core',
+      title: 'Product Requirements Document (PRD) — Flowspace Core',
+      emoji: '📘',
+      rawText: doc1Content,
+      version: 4,
+      authorId: u1.id,
+      author: u1,
+      lastEditedById: u3.id,
+      lastEditedBy: u3,
+      createdAt: '2026-02-15T10:00:00Z',
+      updatedAt: '2026-08-25T17:20:00Z',
+    };
+
+    const d2: Document = {
+      id: 'doc_adr_crdt',
+      workspaceId: 'ws_acme',
+      projectId: 'prj_flowspace_core',
+      title: 'Architecture Decision Record (ADR-004): CRDT & Yjs Synchronization',
+      emoji: '⚡',
+      rawText: doc2Content,
+      version: 2,
+      authorId: u1.id,
+      author: u1,
+      lastEditedById: u2.id,
+      lastEditedBy: u2,
+      createdAt: '2026-03-01T12:00:00Z',
+      updatedAt: '2026-08-20T14:10:00Z',
+    };
+
+    const d3: Document = {
+      id: 'doc_security_guidelines',
+      workspaceId: 'ws_acme',
+      projectId: 'prj_ai_knowledge',
+      title: 'Security, Tenant Isolation & Prompt Injection Defense',
+      emoji: '🛡️',
+      rawText: doc3Content,
+      version: 3,
+      authorId: u3.id,
+      author: u3,
+      lastEditedById: u3.id,
+      lastEditedBy: u3,
+      createdAt: '2026-03-10T16:00:00Z',
+      updatedAt: '2026-08-22T09:45:00Z',
+    };
+
+    [d1, d2, d3].forEach((doc) => this.documents.set(doc.id, doc));
+
+    // 7. Seed Comments
+    const c1: Comment = {
+      id: 'cmt_1',
+      workspaceId: 'ws_acme',
+      targetType: 'document',
+      targetId: 'doc_prd_core',
+      authorId: u2.id,
+      author: u2,
+      content: 'Can we specify the p99 latency threshold for mobile devices on 4G networks as well?',
+      resolved: false,
+      replies: [
+        {
+          id: 'rep_1',
+          commentId: 'cmt_1',
+          authorId: u1.id,
+          author: u1,
+          content: 'Added to section 4 SLA targets: < 120ms on mobile 4G.',
+          createdAt: '2026-08-24T11:30:00Z',
+        },
+      ],
+      createdAt: '2026-08-24T10:15:00Z',
+      updatedAt: '2026-08-24T11:30:00Z',
+    };
+
+    const c2: Comment = {
+      id: 'cmt_2',
+      workspaceId: 'ws_acme',
+      targetType: 'task',
+      targetId: 'tsk_101',
+      authorId: u1.id,
+      author: u1,
+      content: 'Benchmarked the binary encoding: payload size dropped from 42KB JSON down to 3.8KB byte array! Great work Sophia.',
+      resolved: true,
+      resolvedBy: u1.name,
+      resolvedAt: '2026-08-25T14:00:00Z',
+      replies: [],
+      createdAt: '2026-08-25T13:45:00Z',
+      updatedAt: '2026-08-25T14:00:00Z',
+    };
+
+    [c1, c2].forEach((c) => this.comments.set(c.id, c));
+
+    // 8. Seed Files
+    const f1: FileItem = {
+      id: 'file_brand_guide',
+      workspaceId: 'ws_acme',
+      projectId: 'prj_design_system',
+      name: 'Flowspace_Brand_Styleguide_v2.pdf',
+      size: 3420000,
+      type: 'application/pdf',
+      extractedText: 'Flowspace Brand Guide: Primary Indigo (#6366f1), Cyan (#06b6d4), Dark slate neutral backgrounds (#0f172a). Typography scale: Inter & Plus Jakarta Sans with 1.25 ratio.',
+      isIndexedForRag: true,
+      uploadedById: u2.id,
+      uploadedBy: u2,
+      createdAt: '2026-07-10T14:00:00Z',
+    };
+
+    const f2: FileItem = {
+      id: 'file_api_spec',
+      workspaceId: 'ws_acme',
+      projectId: 'prj_flowspace_core',
+      name: 'Flowspace_OpenAPI_Specification.json',
+      size: 154000,
+      type: 'application/json',
+      extractedText: 'OpenAPI 3.1 schema for Flowspace API endpoints: /api/workspaces, /api/tasks, /api/documents, /api/realtime/stream, /api/ai/chat. Requires Bearer JWT token.',
+      isIndexedForRag: true,
+      uploadedById: u3.id,
+      uploadedBy: u3,
+      createdAt: '2026-08-01T11:20:00Z',
+    };
+
+    [f1, f2].forEach((f) => this.files.set(f.id, f));
+
+    // 9. Seed Activities
+    const initialActivities: ActivityLog[] = [
+      {
+        id: 'act_1',
+        workspaceId: 'ws_acme',
+        userId: u1.id,
+        userName: u1.name,
+        userAvatar: u1.avatar,
+        userRole: u1.role,
+        action: 'created_task',
+        targetType: 'task',
+        targetId: 'tsk_101',
+        targetName: 'Implement Yjs binary state vector synchronization',
+        details: 'Assigned to Sophia Chen with Urgent priority',
+        createdAt: '2026-08-25T14:30:00Z',
+      },
+      {
+        id: 'act_2',
+        workspaceId: 'ws_acme',
+        userId: u3.id,
+        userName: u3.name,
+        userAvatar: u3.avatar,
+        userRole: u3.role,
+        action: 'updated_task_status',
+        targetType: 'task',
+        targetId: 'tsk_101',
+        targetName: 'Implement Yjs binary state vector synchronization',
+        details: 'Moved task status to Done',
+        createdAt: '2026-08-26T09:15:00Z',
+      },
+      {
+        id: 'act_3',
+        workspaceId: 'ws_acme',
+        userId: u2.id,
+        userName: u2.name,
+        userAvatar: u2.avatar,
+        userRole: u2.role,
+        action: 'edited_document',
+        targetType: 'document',
+        targetId: 'doc_prd_core',
+        targetName: 'Product Requirements Document (PRD) — Flowspace Core',
+        details: 'Updated Section 4 SLA targets with mobile latency limits',
+        createdAt: '2026-08-26T11:45:00Z',
+      },
+      {
+        id: 'act_4',
+        workspaceId: 'ws_acme',
+        userId: uDemo.id,
+        userName: uDemo.name,
+        userAvatar: uDemo.avatar,
+        userRole: uDemo.role,
+        action: 'uploaded_file',
+        targetType: 'file',
+        targetId: 'file_api_spec',
+        targetName: 'Flowspace_OpenAPI_Specification.json',
+        details: 'Ingested and indexed 154KB into RAG vector repository',
+        createdAt: '2026-08-26T16:00:00Z',
+      },
+    ];
+
+    this.activities.set('ws_acme', initialActivities);
+    this.activities.set('ws_alpha', []);
+
+    // 10. Seed Document Chunks for RAG Vector Search
+    this.indexWorkspaceDocuments('ws_acme');
+  }
+
+  /**
+   * Chunks all documents & files in workspace into search tokens
+   */
+  public indexWorkspaceDocuments(workspaceId: string) {
+    const chunks: DocumentChunk[] = [];
+    const docs = Array.from(this.documents.values()).filter((d) => d.workspaceId === workspaceId);
+
+    docs.forEach((doc) => {
+      // Split into logical sections
+      const sections = doc.rawText.split('\n\n').filter((s) => s.trim().length > 20);
+      sections.forEach((sec, idx) => {
+        chunks.push({
+          id: `chk_${doc.id}_${idx}`,
+          workspaceId: doc.workspaceId,
+          documentId: doc.id,
+          documentTitle: doc.title,
+          chunkIndex: idx,
+          text: sec.trim(),
+          tokenCount: Math.ceil(sec.length / 4),
+          createdAt: new Date().toISOString(),
+        });
+      });
+    });
+
+    const files = Array.from(this.files.values()).filter((f) => f.workspaceId === workspaceId && f.extractedText);
+    files.forEach((file) => {
+      chunks.push({
+        id: `chk_file_${file.id}`,
+        workspaceId: file.workspaceId,
+        documentId: file.id,
+        documentTitle: `File: ${file.name}`,
+        chunkIndex: 0,
+        text: file.extractedText || '',
+        tokenCount: Math.ceil((file.extractedText || '').length / 4),
+        createdAt: new Date().toISOString(),
+      });
+    });
+
+    this.documentChunks.set(workspaceId, chunks);
+  }
+
+  // --- Multi-Tenant Access & Authorization ---
+
+  public getWorkspaceUser(workspaceId: string, userId: string): WorkspaceMember | null {
+    const member = this.workspaceMembers.get(`${workspaceId}_${userId}`);
+    return member || null;
+  }
+
+  public authorize(workspaceId: string, userId: string, requiredPermission: Permission): { authorized: boolean; member?: WorkspaceMember; error?: string } {
+    const member = this.getWorkspaceUser(workspaceId, userId);
+    if (!member) {
+      return { authorized: false, error: 'User is not a member of this workspace (Tenant Isolation Enforced).' };
+    }
+    if (!hasPermission(member.role, requiredPermission)) {
+      return { authorized: false, member, error: `Role '${member.role}' lacks permission '${requiredPermission}'.` };
+    }
+    return { authorized: true, member };
+  }
+
+  // --- Task Methods ---
+
+  public getTasks(workspaceId: string, projectId?: string): Task[] {
+    return Array.from(this.tasks.values()).filter(
+      (t) => t.workspaceId === workspaceId && (!projectId || t.projectId === projectId)
+    );
+  }
+
+  public getTaskById(taskId: string, workspaceId: string): Task | null {
+    const t = this.tasks.get(taskId);
+    if (!t || t.workspaceId !== workspaceId) return null;
+    return t;
+  }
+
+  public createTask(task: Task, actor: User): Task {
+    this.tasks.set(task.id, task);
+    this.logActivity({
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      workspaceId: task.workspaceId,
+      userId: actor.id,
+      userName: actor.name,
+      userAvatar: actor.avatar,
+      userRole: actor.role,
+      action: 'created_task',
+      targetType: 'task',
+      targetId: task.id,
+      targetName: task.title,
+      details: `Created task in column ${task.status.toUpperCase()} (${task.priority} priority)`,
+      createdAt: new Date().toISOString(),
+    });
+    return task;
+  }
+
+  public updateTask(task: Task, actor: User): Task {
+    const old = this.tasks.get(task.id);
+    this.tasks.set(task.id, task);
+
+    let details = 'Updated task details';
+    if (old && old.status !== task.status) {
+      details = `Moved from ${old.status.toUpperCase()} to ${task.status.toUpperCase()}`;
+    }
+
+    this.logActivity({
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      workspaceId: task.workspaceId,
+      userId: actor.id,
+      userName: actor.name,
+      userAvatar: actor.avatar,
+      userRole: actor.role,
+      action: 'updated_task_status',
+      targetType: 'task',
+      targetId: task.id,
+      targetName: task.title,
+      details,
+      createdAt: new Date().toISOString(),
+    });
+    return task;
+  }
+
+  public deleteTask(taskId: string, workspaceId: string, actor: User): boolean {
+    const task = this.getTaskById(taskId, workspaceId);
+    if (!task) return false;
+    this.tasks.delete(taskId);
+    this.logActivity({
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      workspaceId,
+      userId: actor.id,
+      userName: actor.name,
+      userAvatar: actor.avatar,
+      userRole: actor.role,
+      action: 'updated_task_status',
+      targetType: 'task',
+      targetId: taskId,
+      targetName: task.title,
+      details: 'Deleted task',
+      createdAt: new Date().toISOString(),
+    });
+    return true;
+  }
+
+  // --- Sprint Methods ---
+
+  public getSprints(workspaceId: string, projectId?: string): Sprint[] {
+    const sprints = Array.from(this.sprints.values()).filter(
+      (s) => s.workspaceId === workspaceId && (!projectId || s.projectId === projectId)
+    );
+
+    // Update dynamic story point totals
+    return sprints.map((sprint) => {
+      const sprintTasks = Array.from(this.tasks.values()).filter(
+        (t) => t.workspaceId === workspaceId && t.sprintId === sprint.id
+      );
+      const totalSP = sprintTasks.reduce((acc, t) => acc + (t.storyPoints || 0), 0);
+      const completedSP = sprintTasks
+        .filter((t) => t.status === 'done')
+        .reduce((acc, t) => acc + (t.storyPoints || 0), 0);
+
+      return {
+        ...sprint,
+        totalStoryPoints: totalSP || sprint.totalStoryPoints || 0,
+        completedStoryPoints: completedSP || (sprint.status === 'completed' ? sprint.completedStoryPoints || totalSP : 0),
+      };
+    });
+  }
+
+  public getSprintById(sprintId: string, workspaceId: string): Sprint | null {
+    const sprint = this.sprints.get(sprintId);
+    if (!sprint || sprint.workspaceId !== workspaceId) return null;
+    return sprint;
+  }
+
+  public createSprint(sprint: Sprint, actor: User): Sprint {
+    this.sprints.set(sprint.id, sprint);
+    this.logActivity({
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      workspaceId: sprint.workspaceId,
+      userId: actor.id,
+      userName: actor.name,
+      userAvatar: actor.avatar,
+      userRole: actor.role,
+      action: 'created_task',
+      targetType: 'task',
+      targetId: sprint.id,
+      targetName: sprint.name,
+      details: `Created new sprint: "${sprint.name}" with goal: ${sprint.goal}`,
+      createdAt: new Date().toISOString(),
+    });
+    return sprint;
+  }
+
+  public updateSprint(sprint: Sprint, actor: User): Sprint {
+    this.sprints.set(sprint.id, sprint);
+    this.logActivity({
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      workspaceId: sprint.workspaceId,
+      userId: actor.id,
+      userName: actor.name,
+      userAvatar: actor.avatar,
+      userRole: actor.role,
+      action: 'updated_task_status',
+      targetType: 'task',
+      targetId: sprint.id,
+      targetName: sprint.name,
+      details: `Updated sprint configuration (${sprint.status.toUpperCase()})`,
+      createdAt: new Date().toISOString(),
+    });
+    return sprint;
+  }
+
+  public deleteSprint(sprintId: string, workspaceId: string, actor: User): boolean {
+    const sprint = this.getSprintById(sprintId, workspaceId);
+    if (!sprint) return false;
+
+    // Move associated tasks back to Product Backlog
+    this.tasks.forEach((t) => {
+      if (t.workspaceId === workspaceId && t.sprintId === sprintId) {
+        t.sprintId = null;
+        t.updatedAt = new Date().toISOString();
+      }
+    });
+
+    this.sprints.delete(sprintId);
+    this.logActivity({
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      workspaceId,
+      userId: actor.id,
+      userName: actor.name,
+      userAvatar: actor.avatar,
+      userRole: actor.role,
+      action: 'updated_task_status',
+      targetType: 'task',
+      targetId: sprintId,
+      targetName: sprint.name,
+      details: `Deleted sprint and moved tasks to Backlog`,
+      createdAt: new Date().toISOString(),
+    });
+    return true;
+  }
+
+  public startSprint(sprintId: string, workspaceId: string, actor: User): Sprint | null {
+    const sprint = this.getSprintById(sprintId, workspaceId);
+    if (!sprint) return null;
+
+    sprint.status = 'active';
+    sprint.updatedAt = new Date().toISOString();
+    this.sprints.set(sprintId, sprint);
+
+    this.logActivity({
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      workspaceId,
+      userId: actor.id,
+      userName: actor.name,
+      userAvatar: actor.avatar,
+      userRole: actor.role,
+      action: 'updated_task_status',
+      targetType: 'task',
+      targetId: sprintId,
+      targetName: sprint.name,
+      details: `Started active sprint: ${sprint.name}`,
+      createdAt: new Date().toISOString(),
+    });
+    return sprint;
+  }
+
+  public completeSprint(sprintId: string, workspaceId: string, actor: User): Sprint | null {
+    const sprint = this.getSprintById(sprintId, workspaceId);
+    if (!sprint) return null;
+
+    // Calculate completed points
+    const sprintTasks = Array.from(this.tasks.values()).filter(
+      (t) => t.workspaceId === workspaceId && t.sprintId === sprintId
+    );
+    const completedSP = sprintTasks
+      .filter((t) => t.status === 'done')
+      .reduce((acc, t) => acc + (t.storyPoints || 0), 0);
+    const totalSP = sprintTasks.reduce((acc, t) => acc + (t.storyPoints || 0), 0);
+
+    sprint.status = 'completed';
+    sprint.completedStoryPoints = completedSP;
+    sprint.totalStoryPoints = totalSP;
+    sprint.updatedAt = new Date().toISOString();
+    this.sprints.set(sprintId, sprint);
+
+    this.logActivity({
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      workspaceId,
+      userId: actor.id,
+      userName: actor.name,
+      userAvatar: actor.avatar,
+      userRole: actor.role,
+      action: 'updated_task_status',
+      targetType: 'task',
+      targetId: sprintId,
+      targetName: sprint.name,
+      details: `Completed sprint with ${completedSP}/${totalSP} Story Points delivered!`,
+      createdAt: new Date().toISOString(),
+    });
+    return sprint;
+  }
+
+  // --- Retrospective Methods ---
+
+  public getRetroItems(workspaceId: string, sprintId?: string): RetroItem[] {
+    const items = Array.from(this.retroItems.values()).filter(
+      (r) => r.workspaceId === workspaceId && (!sprintId || r.sprintId === sprintId)
+    );
+    return items.sort((a, b) => (b.votes || 0) - (a.votes || 0) || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  public getRetroItemById(itemId: string, workspaceId: string): RetroItem | null {
+    const item = this.retroItems.get(itemId);
+    if (!item || item.workspaceId !== workspaceId) return null;
+    return item;
+  }
+
+  public createRetroItem(item: RetroItem, actor: User): RetroItem {
+    this.retroItems.set(item.id, item);
+    this.logActivity({
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      workspaceId: item.workspaceId,
+      userId: actor.id,
+      userName: actor.name,
+      userAvatar: actor.avatar,
+      userRole: actor.role,
+      action: 'created_task',
+      targetType: 'task',
+      targetId: item.id,
+      targetName: item.title,
+      details: `Added retrospective card: [${item.category.toUpperCase()}] "${item.title}"`,
+      createdAt: new Date().toISOString(),
+    });
+    return item;
+  }
+
+  public updateRetroItem(item: RetroItem, actor: User): RetroItem {
+    this.retroItems.set(item.id, item);
+    return item;
+  }
+
+  public voteRetroItem(itemId: string, userId: string, workspaceId: string): RetroItem | null {
+    const item = this.getRetroItemById(itemId, workspaceId);
+    if (!item) return null;
+
+    const voted = item.votedUserIds || [];
+    const hasVoted = voted.includes(userId);
+
+    if (hasVoted) {
+      item.votedUserIds = voted.filter((id) => id !== userId);
+      item.votes = Math.max(0, (item.votes || 1) - 1);
+    } else {
+      item.votedUserIds = [...voted, userId];
+      item.votes = (item.votes || 0) + 1;
+    }
+
+    this.retroItems.set(item.id, item);
+    return item;
+  }
+
+  public deleteRetroItem(itemId: string, workspaceId: string, actor: User): boolean {
+    const item = this.getRetroItemById(itemId, workspaceId);
+    if (!item) return false;
+    this.retroItems.delete(itemId);
+    return true;
+  }
+
+  public convertRetroActionToTask(
+    itemId: string,
+    workspaceId: string,
+    targetSprintId: string | null,
+    actor: User
+  ): { task: Task; retroItem: RetroItem } | null {
+    const item = this.getRetroItemById(itemId, workspaceId);
+    if (!item) return null;
+
+    const sprint = targetSprintId ? this.getSprintById(targetSprintId, workspaceId) : null;
+    const defaultProject = Array.from(this.projects.values()).find((p) => p.workspaceId === workspaceId);
+    const projectId = sprint?.projectId || defaultProject?.id || 'prj_flowspace_core';
+
+    const newTask: Task = {
+      id: `tsk_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      workspaceId,
+      projectId,
+      sprintId: targetSprintId,
+      title: item.title,
+      description: `[Создано из Ретроспективы Спринта]: ${item.description}\n\nАвтор идеи: ${item.authorName} (Голосов: ${item.votes})`,
+      status: 'todo',
+      priority: item.priority || 'high',
+      storyPoints: 3,
+      estimatedHours: 8,
+      loggedHours: 0,
+      worklogs: [],
+      assigneeId: item.assigneeId || actor.id,
+      assignee: item.assigneeId ? this.users.get(item.assigneeId) || actor : actor,
+      reporterId: actor.id,
+      reporter: actor,
+      dueDate: item.dueDate || new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+      labels: ['Retro Action', 'Agile', 'Improvement'],
+      commentsCount: 0,
+      order: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.tasks.set(newTask.id, newTask);
+
+    item.status = 'converted_to_task';
+    item.convertedTaskId = newTask.id;
+    this.retroItems.set(item.id, item);
+
+    this.logActivity({
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      workspaceId,
+      userId: actor.id,
+      userName: actor.name,
+      userAvatar: actor.avatar,
+      userRole: actor.role,
+      action: 'created_task',
+      targetType: 'task',
+      targetId: newTask.id,
+      targetName: newTask.title,
+      details: `Converted Retro Action Item into actionable task ${targetSprintId ? `in sprint "${sprint?.name}"` : 'in Product Backlog'}`,
+      createdAt: new Date().toISOString(),
+    });
+
+    return { task: newTask, retroItem: item };
+  }
+
+  public getSprintRetroSummary(workspaceId: string, sprintId: string): SprintRetroSummary | null {
+    return this.sprintRetroSummaries.get(`${workspaceId}_${sprintId}`) || null;
+  }
+
+  public saveSprintRetroSummary(summary: SprintRetroSummary, actor: User): SprintRetroSummary {
+    this.sprintRetroSummaries.set(`${summary.workspaceId}_${summary.sprintId}`, summary);
+    return summary;
+  }
+
+  // --- Worklog / Time Tracking Methods ---
+
+  public logWorkTime(
+    taskId: string,
+    workspaceId: string,
+    worklog: Omit<WorklogItem, 'id' | 'loggedAt' | 'user'>,
+    actor: User
+  ): { task: Task; worklog: WorklogItem } | null {
+    const task = this.getTaskById(taskId, workspaceId);
+    if (!task) return null;
+
+    const newLog: WorklogItem = {
+      id: `wl_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      taskId,
+      userId: actor.id,
+      user: actor,
+      hours: Number(worklog.hours),
+      description: worklog.description || 'General task development & implementation',
+      loggedAt: new Date().toISOString(),
+    };
+
+    const currentLogs = task.worklogs || [];
+    task.worklogs = [newLog, ...currentLogs];
+    task.loggedHours = Number((task.worklogs.reduce((sum, item) => sum + (Number(item.hours) || 0), 0)).toFixed(2));
+    task.updatedAt = new Date().toISOString();
+
+    this.tasks.set(task.id, task);
+
+    this.logActivity({
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      workspaceId,
+      userId: actor.id,
+      userName: actor.name,
+      userAvatar: actor.avatar,
+      userRole: actor.role,
+      action: 'updated_task_status',
+      targetType: 'task',
+      targetId: task.id,
+      targetName: task.title,
+      details: `Logged ${newLog.hours}h: "${newLog.description}" (Total: ${task.loggedHours}h / ${task.estimatedHours || 0}h)`,
+      createdAt: new Date().toISOString(),
+    });
+
+    return { task, worklog: newLog };
+  }
+
+  public deleteWorklog(taskId: string, worklogId: string, workspaceId: string, actor: User): Task | null {
+    const task = this.getTaskById(taskId, workspaceId);
+    if (!task || !task.worklogs) return null;
+
+    task.worklogs = task.worklogs.filter((w) => w.id !== worklogId);
+    task.loggedHours = Number((task.worklogs.reduce((sum, item) => sum + (Number(item.hours) || 0), 0)).toFixed(2));
+    task.updatedAt = new Date().toISOString();
+
+    this.tasks.set(task.id, task);
+    return task;
+  }
+
+  // --- Document Methods ---
+
+  public getDocuments(workspaceId: string): Document[] {
+    return Array.from(this.documents.values()).filter((d) => d.workspaceId === workspaceId);
+  }
+
+  public getDocumentById(docId: string, workspaceId: string): Document | null {
+    const doc = this.documents.get(docId);
+    if (!doc || doc.workspaceId !== workspaceId) return null;
+    return doc;
+  }
+
+  public createDocument(doc: Document, actor: User): Document {
+    this.documents.set(doc.id, doc);
+    this.indexWorkspaceDocuments(doc.workspaceId);
+    this.logActivity({
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      workspaceId: doc.workspaceId,
+      userId: actor.id,
+      userName: actor.name,
+      userAvatar: actor.avatar,
+      userRole: actor.role,
+      action: 'created_document',
+      targetType: 'document',
+      targetId: doc.id,
+      targetName: doc.title,
+      details: 'Created new collaborative document',
+      createdAt: new Date().toISOString(),
+    });
+    return doc;
+  }
+
+  public updateDocument(doc: Document, actor: User, changeSummary?: string): Document {
+    const existing = this.documents.get(doc.id);
+    const version = (existing?.version || 1) + 1;
+    const updatedDoc: Document = {
+      ...doc,
+      version,
+      lastEditedById: actor.id,
+      lastEditedBy: actor,
+      updatedAt: new Date().toISOString(),
+    };
+
+    const versions = this.documentVersions.get(doc.id) || [];
+    versions.push({
+      id: `ver_${doc.id}_${version}`,
+      version,
+      authorId: actor.id,
+      authorName: actor.name,
+      title: doc.title,
+      snapshot: doc.rawText,
+      timestamp: new Date().toISOString(),
+      changeSummary: changeSummary || 'Real-time collaborative CRDT update',
+    });
+    this.documentVersions.set(doc.id, versions);
+
+    this.documents.set(doc.id, updatedDoc);
+    this.indexWorkspaceDocuments(doc.workspaceId);
+
+    this.logActivity({
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      workspaceId: doc.workspaceId,
+      userId: actor.id,
+      userName: actor.name,
+      userAvatar: actor.avatar,
+      userRole: actor.role,
+      action: 'edited_document',
+      targetType: 'document',
+      targetId: doc.id,
+      targetName: doc.title,
+      details: changeSummary || `Saved version v${version}`,
+      createdAt: new Date().toISOString(),
+    });
+    return updatedDoc;
+  }
+
+  public deleteDocument(docId: string, workspaceId: string, actor: User): boolean {
+    const doc = this.getDocumentById(docId, workspaceId);
+    if (!doc) return false;
+    this.documents.delete(docId);
+    this.indexWorkspaceDocuments(workspaceId);
+    return true;
+  }
+
+  // --- Comment Methods ---
+
+  public getComments(workspaceId: string, targetType?: string, targetId?: string): Comment[] {
+    return Array.from(this.comments.values()).filter(
+      (c) =>
+        c.workspaceId === workspaceId &&
+        (!targetType || c.targetType === targetType) &&
+        (!targetId || c.targetId === targetId)
+    );
+  }
+
+  public addComment(comment: Comment, actor: User): Comment {
+    this.comments.set(comment.id, comment);
+
+    if (comment.targetType === 'task') {
+      const task = this.tasks.get(comment.targetId);
+      if (task) {
+        task.commentsCount = (task.commentsCount || 0) + 1;
+        this.tasks.set(task.id, task);
+      }
+    }
+
+    this.logActivity({
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      workspaceId: comment.workspaceId,
+      userId: actor.id,
+      userName: actor.name,
+      userAvatar: actor.avatar,
+      userRole: actor.role,
+      action: 'added_comment',
+      targetType: comment.targetType,
+      targetId: comment.targetId,
+      targetName: `Comment on ${comment.targetType}`,
+      details: comment.content.slice(0, 80) + (comment.content.length > 80 ? '...' : ''),
+      createdAt: new Date().toISOString(),
+    });
+    return comment;
+  }
+
+  public resolveComment(commentId: string, workspaceId: string, actor: User, resolved: boolean): Comment | null {
+    const c = this.comments.get(commentId);
+    if (!c || c.workspaceId !== workspaceId) return null;
+    c.resolved = resolved;
+    c.resolvedBy = resolved ? actor.name : undefined;
+    c.resolvedAt = resolved ? new Date().toISOString() : undefined;
+    c.updatedAt = new Date().toISOString();
+    this.comments.set(commentId, c);
+
+    this.logActivity({
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      workspaceId,
+      userId: actor.id,
+      userName: actor.name,
+      userAvatar: actor.avatar,
+      userRole: actor.role,
+      action: 'resolved_comment',
+      targetType: c.targetType,
+      targetId: c.targetId,
+      targetName: `Comment thread on ${c.targetType}`,
+      details: resolved ? 'Marked thread as resolved' : 'Reopened comment thread',
+      createdAt: new Date().toISOString(),
+    });
+    return c;
+  }
+
+  // --- Files Methods ---
+
+  public getFiles(workspaceId: string): FileItem[] {
+    return Array.from(this.files.values()).filter((f) => f.workspaceId === workspaceId);
+  }
+
+  public addFile(file: FileItem, actor: User): FileItem {
+    this.files.set(file.id, file);
+    this.indexWorkspaceDocuments(file.workspaceId);
+    this.logActivity({
+      id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      workspaceId: file.workspaceId,
+      userId: actor.id,
+      userName: actor.name,
+      userAvatar: actor.avatar,
+      userRole: actor.role,
+      action: 'uploaded_file',
+      targetType: 'file',
+      targetId: file.id,
+      targetName: file.name,
+      details: `Uploaded ${file.name} (${Math.round(file.size / 1024)} KB) and indexed for RAG`,
+      createdAt: new Date().toISOString(),
+    });
+    return file;
+  }
+
+  public deleteFile(fileId: string, workspaceId: string, actor: User): boolean {
+    const f = this.files.get(fileId);
+    if (!f || f.workspaceId !== workspaceId) return false;
+    this.files.delete(fileId);
+    this.indexWorkspaceDocuments(workspaceId);
+    return true;
+  }
+
+  // --- Activity Feed ---
+
+  public getActivities(workspaceId: string, limit = 50): ActivityLog[] {
+    const list = this.activities.get(workspaceId) || [];
+    return [...list].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, limit);
+  }
+
+  public logActivity(activity: ActivityLog) {
+    const list = this.activities.get(activity.workspaceId) || [];
+    list.unshift(activity);
+    if (list.length > 200) list.pop();
+    this.activities.set(activity.workspaceId, list);
+  }
+}
+
+// Global Singleton for Container Runtime
+const globalForDb = global as unknown as { dbStore?: DatabaseStore };
+export const db = globalForDb.dbStore || new DatabaseStore();
+if (process.env.NODE_ENV !== 'production') globalForDb.dbStore = db;

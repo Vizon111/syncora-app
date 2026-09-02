@@ -1,0 +1,8 @@
+{
+  "name": "Flowspace",
+  "description": "Collaborative workspace SaaS with real-time CRDT document editing, Kanban task boards, multi-tenant RBAC, and AI-powered workspace RAG knowledge layer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
