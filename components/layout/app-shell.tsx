@@ -15,7 +15,6 @@ import {
   Plus,
   Shield,
   Zap,
-  Globe,
   Layers,
   LogOut,
   Command,
@@ -23,6 +22,7 @@ import {
   CheckCircle2,
   Bell,
   Keyboard,
+  Settings,
 } from 'lucide-react';
 import { useWorkspace } from '@/hooks/use-workspace-context';
 import { Avatar } from '@/components/ui/avatar';
@@ -40,12 +40,11 @@ import { NotificationsPopover } from '@/components/notifications/notifications-p
 import { SearchModal } from '@/components/modals/search-modal';
 import { QuickTaskModal } from '@/components/modals/quick-task-modal';
 import { ShortcutsHelpModal } from '@/components/modals/shortcuts-help-modal';
+import { SettingsModal } from '@/components/modals/settings-modal';
 import { useGlobalShortcuts } from '@/hooks/use-global-shortcuts';
 
 export function AppShell() {
   const {
-    language,
-    setLanguage,
     t,
     currentWorkspace,
     workspaces,
@@ -62,6 +61,7 @@ export function AppShell() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isQuickTaskOpen, setIsQuickTaskOpen] = useState(false);
   const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
@@ -263,52 +263,8 @@ export function AppShell() {
             </button>
           </div>
 
-          {/* Right Header: Language Switcher, Active Peers & Persona Switcher */}
+          {/* Right Header: Active Peers & Persona Switcher */}
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* Language Switcher Toggle in Header */}
-            <div className="flex items-center gap-1 bg-neutral-900 border border-neutral-700/80 p-1 rounded-xl shadow-xs">
-              <Globe className="w-3.5 h-3.5 text-indigo-400 ml-1.5 hidden sm:inline-block" />
-              <button
-                id="btn-lang-ru-header"
-                onClick={() => setLanguage('ru')}
-                className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold transition-all ${
-                  language === 'ru'
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                    : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800'
-                }`}
-                title="Переключить на русский язык"
-              >
-                <span>🇷🇺</span>
-                <span>RU</span>
-              </button>
-              <button
-                id="btn-lang-en-header"
-                onClick={() => setLanguage('en')}
-                className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold transition-all ${
-                  language === 'en'
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                    : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800'
-                }`}
-                title="Switch to English"
-              >
-                <span>🇬🇧</span>
-                <span>EN</span>
-              </button>
-              <button
-                id="btn-lang-es-header"
-                onClick={() => setLanguage('es')}
-                className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold transition-all ${
-                  language === 'es'
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                    : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800'
-                }`}
-                title="Cambiar a Español"
-              >
-                <span>🇪🇸</span>
-                <span>ES</span>
-              </button>
-            </div>
-
             {/* Active Online Peers Avatar Cluster */}
             <div className="hidden lg:flex items-center gap-1.5 pl-3 border-l border-neutral-800">
               <span className="text-2xs text-neutral-500 uppercase tracking-wider mr-1">{t.common.collaborators}</span>
@@ -364,9 +320,20 @@ export function AppShell() {
                   <button
                     onClick={() => {
                       setIsUserMenuOpen(false);
+                      setIsSettingsOpen(true);
+                    }}
+                    className="w-full flex items-center gap-2.5 p-2 mt-1 rounded-lg text-left text-xs font-medium text-neutral-300 hover:bg-neutral-800 transition-colors"
+                  >
+                    <Settings className="w-3.5 h-3.5" />
+                    {t.common.settings}
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setIsUserMenuOpen(false);
                       signOut();
                     }}
-                    className="w-full flex items-center gap-2.5 p-2 mt-1 rounded-lg text-left text-xs font-medium text-red-400 hover:bg-red-950/40 transition-colors"
+                    className="w-full flex items-center gap-2.5 p-2 rounded-lg text-left text-xs font-medium text-red-400 hover:bg-red-950/40 transition-colors"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     {t.common.signOut}
@@ -412,6 +379,12 @@ export function AppShell() {
         onClose={() => setIsShortcutsHelpOpen(false)}
         onOpenQuickTask={() => setIsQuickTaskOpen(true)}
         onOpenSearch={() => setIsSearchOpen(true)}
+      />
+
+      {/* Settings Modal: account, language & appearance */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
       />
     </div>
   );
