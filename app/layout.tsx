@@ -13,7 +13,25 @@ export const metadata: Metadata = {
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
+      <head>
+        <script
+          // Runs before paint to avoid a flash of the wrong theme.
+          // Reads the persisted preference and applies the class to <html>
+          // ahead of React hydration.
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function () {
+                try {
+                  var stored = window.localStorage.getItem('flowspace-theme');
+                  var isLight = stored === 'light';
+                  document.documentElement.classList.toggle('dark', !isLight);
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body suppressHydrationWarning>{children}</body>
     </html>
   );
