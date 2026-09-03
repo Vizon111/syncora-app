@@ -36,11 +36,11 @@ import { AiCopilotView } from '@/components/views/ai-copilot-view';
 import { FilesView } from '@/components/views/files-view';
 import { TeamRolesView } from '@/components/views/team-roles-view';
 import { ProjectsView } from '@/components/views/projects-view';
+import { SettingsView } from '@/components/views/settings-view';
 import { NotificationsPopover } from '@/components/notifications/notifications-popover';
 import { SearchModal } from '@/components/modals/search-modal';
 import { QuickTaskModal } from '@/components/modals/quick-task-modal';
 import { ShortcutsHelpModal } from '@/components/modals/shortcuts-help-modal';
-import { SettingsModal } from '@/components/modals/settings-modal';
 import { useGlobalShortcuts } from '@/hooks/use-global-shortcuts';
 
 export function AppShell() {
@@ -61,7 +61,6 @@ export function AppShell() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isQuickTaskOpen, setIsQuickTaskOpen] = useState(false);
   const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
@@ -211,16 +210,17 @@ export function AppShell() {
         {/* Footer Tenant / Realtime Status */}
         <div className="p-3 border-t border-slate-200 bg-slate-50/60 dark:border-neutral-800 dark:bg-neutral-950/60 space-y-2">
           <button
-            onClick={() => setIsShortcutsHelpOpen(true)}
-            className="w-full flex items-center justify-between p-2 rounded-lg bg-white/60 border border-slate-200/80 hover:bg-slate-100 hover:border-slate-300 dark:bg-neutral-900/60 dark:border-neutral-800/80 dark:hover:bg-neutral-800 dark:hover:border-neutral-700 text-slate-500 hover:text-slate-800 dark:text-neutral-400 dark:hover:text-neutral-200 text-2xs transition-colors"
+            onClick={() => setActiveView('settings')}
+            className={`w-full flex items-center justify-between p-2 rounded-lg text-2xs transition-colors ${
+              activeView === 'settings'
+                ? 'bg-slate-200/80 text-slate-900 font-semibold border border-slate-300/60 dark:bg-neutral-800/90 dark:text-neutral-100 dark:border-neutral-700/60'
+                : 'bg-white/60 border border-slate-200/80 hover:bg-slate-100 hover:border-slate-300 dark:bg-neutral-900/60 dark:border-neutral-800/80 dark:hover:bg-neutral-800 dark:hover:border-neutral-700 text-slate-500 hover:text-slate-800 dark:text-neutral-400 dark:hover:text-neutral-200'
+            }`}
           >
             <div className="flex items-center gap-2">
-              <Keyboard className="w-3.5 h-3.5 text-slate-400 dark:text-neutral-400" />
-              <span>{t.shortcuts.title}</span>
+              <Settings className="w-3.5 h-3.5" />
+              <span>{t.common.settings}</span>
             </div>
-            <kbd className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 dark:bg-neutral-800 dark:text-neutral-300 font-mono text-3xs border border-slate-300 dark:border-neutral-700">
-              ?
-            </kbd>
           </button>
 
           <div className="flex items-center justify-between text-2xs text-slate-500 dark:text-neutral-400 pt-1">
@@ -320,12 +320,17 @@ export function AppShell() {
                   <button
                     onClick={() => {
                       setIsUserMenuOpen(false);
-                      setIsSettingsOpen(true);
+                      setIsShortcutsHelpOpen(true);
                     }}
-                    className="w-full flex items-center gap-2.5 p-2 mt-1 rounded-lg text-left text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-neutral-300 dark:hover:bg-neutral-800 transition-colors"
+                    className="w-full flex items-center justify-between gap-2.5 p-2 mt-1 rounded-lg text-left text-xs font-medium text-slate-600 hover:bg-slate-100 dark:text-neutral-300 dark:hover:bg-neutral-800 transition-colors"
                   >
-                    <Settings className="w-3.5 h-3.5" />
-                    {t.common.settings}
+                    <div className="flex items-center gap-2.5">
+                      <Keyboard className="w-3.5 h-3.5" />
+                      {t.shortcuts.title}
+                    </div>
+                    <kbd className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 dark:bg-neutral-800 dark:text-neutral-300 font-mono text-3xs border border-slate-300 dark:border-neutral-700">
+                      ?
+                    </kbd>
                   </button>
 
                   <button
@@ -356,6 +361,7 @@ export function AppShell() {
           {activeView === 'ai' && <AiCopilotView />}
           {activeView === 'files' && <FilesView />}
           {activeView === 'team' && <TeamRolesView />}
+          {activeView === 'settings' && <SettingsView />}
         </main>
       </div>
 
@@ -379,12 +385,6 @@ export function AppShell() {
         onClose={() => setIsShortcutsHelpOpen(false)}
         onOpenQuickTask={() => setIsQuickTaskOpen(true)}
         onOpenSearch={() => setIsSearchOpen(true)}
-      />
-
-      {/* Settings Modal: account, language & appearance */}
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
       />
     </div>
   );
