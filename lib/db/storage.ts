@@ -104,6 +104,25 @@ class DatabaseStore {
     return data ? mapUser(data as UserRow) : null;
   }
 
+  /** Updates the caller's own profile fields (name and/or avatar_url).
+   *  Email and password are intentionally not handled here — those go
+   *  through Supabase Auth directly (supabase.auth.updateUser) since they
+   *  require verification/re-authentication flows this table doesn't own. */
+  async updateUser(userId: string, updates: { name?: string; avatarUrl?: string }): Promise<User> {
+    const patch: Record<string, string> = {};
+    if (updates.name !== undefined) patch.name = updates.name;
+    if (updates.avatarUrl !== undefined) patch.avatar_url = updates.avatarUrl;
+
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .update(patch)
+      .eq('id', userId)
+      .select(USER_SELECT)
+      .single();
+    if (error) throw new Error(`[db] updateUser: ${error.message}`);
+    return mapUser(data as UserRow);
+  }
+
   async getUsersByIds(userIds: string[]): Promise<User[]> {
     if (userIds.length === 0) return [];
     const { data, error } = await supabaseAdmin.from('users').select(USER_SELECT).in('id', userIds);

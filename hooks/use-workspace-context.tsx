@@ -48,6 +48,7 @@ interface WorkspaceContextType {
   setSelectedDocId: (id: string | null) => void;
   switchWorkspace: (workspaceId: string) => Promise<void>;
   signOut: () => Promise<void>;
+  updateProfile: (updates: { name?: string; avatarUrl?: string }) => Promise<User | null>;
   createTask: (task: Partial<Task>) => Promise<Task | null>;
   updateTask: (task: Task) => Promise<Task | null>;
   deleteTask: (taskId: string) => Promise<boolean>;
@@ -234,6 +235,26 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.signOut();
     window.location.href = '/login';
+  }, []);
+
+  const updateProfile = useCallback(async (updates: { name?: string; avatarUrl?: string }) => {
+    try {
+      const res = await fetch('/api/auth/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to update profile');
+      }
+      const { user } = await res.json();
+      setCurrentUser(user);
+      return user as User;
+    } catch (e) {
+      console.error('[updateProfile]', e);
+      return null;
+    }
   }, []);
 
   // Handle incoming real-time events
@@ -994,6 +1015,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         setSelectedDocId,
         switchWorkspace,
         signOut,
+        updateProfile,
         createTask,
         updateTask,
         deleteTask,

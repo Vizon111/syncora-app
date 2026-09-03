@@ -1,14 +1,17 @@
 'use client';
 
 import React from 'react';
-import { Settings, User as UserIcon, Globe, Moon, Sun, Sparkles, LogOut } from 'lucide-react';
+import { Settings, Globe, Moon, Sun, Sparkles, Keyboard } from 'lucide-react';
 import { useWorkspace } from '@/hooks/use-workspace-context';
 import { useTheme } from '@/hooks/use-theme';
-import { Avatar } from '@/components/ui/avatar';
 import type { Language } from '@/lib/i18n';
 
-export function SettingsView() {
-  const { t, language, setLanguage, currentUser, currentWorkspace, signOut } = useWorkspace();
+interface SettingsViewProps {
+  onOpenShortcuts: () => void;
+}
+
+export function SettingsView({ onOpenShortcuts }: SettingsViewProps) {
+  const { t, language, setLanguage } = useWorkspace();
   const { theme, setTheme } = useTheme();
 
   const languages: { code: Language; label: string; flag: string }[] = [
@@ -27,60 +30,6 @@ export function SettingsView() {
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-neutral-100">{t.settings.title}</h1>
           <p className="text-sm text-slate-500 dark:text-neutral-400">{t.settings.subtitle}</p>
-        </div>
-      </div>
-
-      {/* Account Section */}
-      <div className="space-y-2.5">
-        <h4 className="flex items-center gap-1.5 text-2xs font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-400">
-          <UserIcon className="w-3 h-3" />
-          {t.settings.accountSection}
-        </h4>
-        <div className="p-4 rounded-xl border border-slate-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 space-y-4">
-          <div className="flex items-center gap-3">
-            <Avatar
-              src={currentUser.avatar}
-              name={currentUser.name}
-              color={currentUser.color}
-              className="w-12 h-12 rounded-lg object-cover border border-slate-200 dark:border-neutral-700"
-            />
-            <div className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-semibold text-slate-800 dark:text-neutral-200">
-                {currentUser.name}
-              </span>
-              <span className="block truncate text-xs text-slate-500 dark:text-neutral-500">{currentUser.email}</span>
-            </div>
-            <span className="text-3xs uppercase tracking-wider text-indigo-600 dark:text-indigo-400 font-mono font-bold px-2 py-1 rounded-md bg-indigo-50 border border-indigo-200 dark:bg-indigo-950/60 dark:border-indigo-800/60 shrink-0">
-              {currentUser.role}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-200 dark:border-neutral-800">
-            <div>
-              <span className="block text-3xs uppercase tracking-wider text-slate-400 dark:text-neutral-500 mb-0.5">
-                {t.settings.workspace}
-              </span>
-              <span className="text-sm text-slate-600 dark:text-neutral-300 font-medium truncate block">
-                {currentWorkspace.name}
-              </span>
-            </div>
-            <div>
-              <span className="block text-3xs uppercase tracking-wider text-slate-400 dark:text-neutral-500 mb-0.5">
-                {t.settings.role}
-              </span>
-              <span className="text-sm text-slate-600 dark:text-neutral-300 font-medium truncate block">
-                {currentUser.role}
-              </span>
-            </div>
-          </div>
-
-          <button
-            onClick={signOut}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-red-600 bg-red-50 border border-red-200 hover:bg-red-100 dark:text-red-400 dark:bg-red-950/20 dark:border-red-900/40 dark:hover:bg-red-950/40 transition-colors"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            {t.settings.signOut}
-          </button>
         </div>
       </div>
 
@@ -143,6 +92,28 @@ export function SettingsView() {
               {t.settings.themeLight}
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Keyboard Shortcuts Section */}
+      <div className="space-y-2.5">
+        <h4 className="flex items-center gap-1.5 text-2xs font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-400">
+          <Keyboard className="w-3 h-3" />
+          {t.settings.shortcutsSection}
+        </h4>
+        <div className="p-4 rounded-xl border border-slate-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
+          <button
+            onClick={onOpenShortcuts}
+            className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 dark:text-neutral-300 dark:border-neutral-800 dark:hover:bg-neutral-800 dark:hover:border-neutral-700 transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <Keyboard className="w-3.5 h-3.5" />
+              {t.settings.openShortcuts}
+            </div>
+            <kbd className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 dark:bg-neutral-800 dark:text-neutral-300 font-mono text-3xs border border-slate-300 dark:border-neutral-700">
+              ?
+            </kbd>
+          </button>
         </div>
       </div>
     </div>
