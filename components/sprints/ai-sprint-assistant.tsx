@@ -150,7 +150,7 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
   return (
     <div className="flex flex-col gap-6" id="ai-sprint-assistant-container">
       {/* Top Banner: Diagnostics & Quick Run */}
-      <div className="bg-white rounded-xl border border-neutral-200 p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bg-white rounded-xl border border-slate-200 dark:border-neutral-800 p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-start gap-4">
           <div
             className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shrink-0 shadow-xs ${
@@ -166,7 +166,7 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
 
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-neutral-900">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-neutral-50">
                 {t.sprints.aiHealthTitle || 'Диагностика здоровья и рисков спринта'}
               </h2>
               <span
@@ -181,7 +181,7 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
                 {diagnosis?.healthLevel || (isHealthy ? 'Healthy' : 'At Risk')}
               </span>
             </div>
-            <p className="text-xs text-neutral-600 mt-1 max-w-2xl leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-neutral-300 mt-1 max-w-2xl leading-relaxed">
               {diagnosis?.summary ||
                 'Автоматический аудит темпа сгорания, узких мест в Review и баланса загрузки команды.'}
             </p>
@@ -193,7 +193,7 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
             id="rerun-sprint-diagnostics-btn"
             onClick={loadHealth}
             disabled={isHealthLoading}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-neutral-200 bg-slate-100 dark:bg-neutral-800 hover:bg-slate-200 dark:hover:bg-neutral-800 rounded-lg transition-colors disabled:opacity-50"
           >
             {isHealthLoading ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -208,14 +208,14 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
       {/* Grid: Health Metrics & Workload Balance */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Column 1: Risks & Mitigations */}
-        <div className="bg-white rounded-xl border border-neutral-200 p-5 shadow-xs flex flex-col justify-between">
+        <div className="bg-white rounded-xl border border-slate-200 dark:border-neutral-800 p-5 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-neutral-900 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-neutral-50 flex items-center gap-2">
                 <ShieldAlert className="w-4 h-4 text-amber-600" />
                 {t.sprints.risks || 'Факторы риска и митигация'}
               </h3>
-              <span className="text-xs font-semibold text-neutral-500">
+              <span className="text-xs font-semibold text-slate-500 dark:text-neutral-500">
                 {diagnosis?.risks?.length || 0} факторов
               </span>
             </div>
@@ -225,10 +225,10 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
                 {diagnosis.risks.map((risk, i) => (
                   <div
                     key={i}
-                    className="p-3 rounded-lg border border-neutral-100 bg-neutral-50/70 text-xs flex flex-col gap-1.5"
+                    className="p-3 rounded-lg border border-slate-100 dark:border-neutral-900 bg-slate-50/70 dark:bg-neutral-900/70 text-xs flex flex-col gap-1.5"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-neutral-900">{risk.factor}</span>
+                      <span className="font-semibold text-slate-900 dark:text-neutral-50">{risk.factor}</span>
                       <span
                         className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase ${
                           risk.impact === 'high'
@@ -241,14 +241,14 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
                         {risk.impact} impact
                       </span>
                     </div>
-                    <p className="text-neutral-600 text-[11px] leading-relaxed">
+                    <p className="text-slate-600 dark:text-neutral-300 text-[11px] leading-relaxed">
                       💡 <strong>Решение:</strong> {risk.mitigation}
                     </p>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="p-4 text-center text-xs text-neutral-500 border border-dashed border-neutral-200 rounded-lg">
+              <div className="p-4 text-center text-xs text-slate-500 dark:text-neutral-500 border border-dashed border-slate-200 dark:border-neutral-800 rounded-lg">
                 Критических рисков не обнаружено. Спринт движется в пределах нормы.
               </div>
             )}
@@ -256,12 +256,12 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
 
           {/* Key Strengths at bottom */}
           {diagnosis?.keyStrengths && diagnosis.keyStrengths.length > 0 && (
-            <div className="mt-4 pt-3 border-t border-neutral-100 text-xs">
+            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-neutral-900 text-xs">
               <span className="font-semibold text-emerald-800 flex items-center gap-1.5 mb-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                 Сильные стороны спринта:
               </span>
-              <ul className="space-y-1 text-neutral-600 pl-4 list-disc text-[11px]">
+              <ul className="space-y-1 text-slate-600 dark:text-neutral-300 pl-4 list-disc text-[11px]">
                 {diagnosis.keyStrengths.map((str, idx) => (
                   <li key={idx}>{str}</li>
                 ))}
@@ -271,14 +271,14 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
         </div>
 
         {/* Column 2: Bottlenecks & Blocked Tasks */}
-        <div className="bg-white rounded-xl border border-neutral-200 p-5 shadow-xs flex flex-col justify-between">
+        <div className="bg-white rounded-xl border border-slate-200 dark:border-neutral-800 p-5 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-neutral-900 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-neutral-50 flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-rose-600" />
                 {t.sprints.bottlenecks || 'Узкие места и зависшие задачи'}
               </h3>
-              <span className="text-xs font-semibold text-neutral-500">
+              <span className="text-xs font-semibold text-slate-500 dark:text-neutral-500">
                 {diagnosis?.bottlenecks?.length || 0} задач
               </span>
             </div>
@@ -291,8 +291,8 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
                     className="p-3 rounded-lg border border-rose-100 bg-rose-50/40 text-xs flex flex-col gap-1.5"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-neutral-900">{bot.title}</span>
-                      <span className="text-[10px] text-neutral-500">{bot.assignee}</span>
+                      <span className="font-semibold text-slate-900 dark:text-neutral-50">{bot.title}</span>
+                      <span className="text-[10px] text-slate-500 dark:text-neutral-500">{bot.assignee}</span>
                     </div>
                     <p className="text-rose-700 text-[11px] leading-relaxed">
                       ⚠️ <strong>Причина:</strong> {bot.reason}
@@ -301,17 +301,17 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
                 ))}
               </div>
             ) : (
-              <div className="p-4 text-center text-xs text-neutral-500 border border-dashed border-neutral-200 rounded-lg">
+              <div className="p-4 text-center text-xs text-slate-500 dark:text-neutral-500 border border-dashed border-slate-200 dark:border-neutral-800 rounded-lg">
                 Все задачи спринта продвигаются без длительных простоев.
               </div>
             )}
           </div>
 
           {/* Projected Completion Rate */}
-          <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs">
-            <span className="text-neutral-600 font-medium">Прогноз сдачи объема:</span>
+          <div className="mt-4 pt-3 border-t border-slate-100 dark:border-neutral-900 flex items-center justify-between text-xs">
+            <span className="text-slate-600 dark:text-neutral-300 font-medium">Прогноз сдачи объема:</span>
             <div className="flex items-center gap-2">
-              <div className="w-24 bg-neutral-100 rounded-full h-2 overflow-hidden">
+              <div className="w-24 bg-slate-100 dark:bg-neutral-800 rounded-full h-2 overflow-hidden">
                 <div
                   className="bg-indigo-600 h-full rounded-full transition-all"
                   style={{ width: `${diagnosis?.projectedCompletionPct || 85}%` }}
@@ -325,13 +325,13 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
         </div>
 
         {/* Column 3: Workload Distribution per Engineer */}
-        <div className="bg-white rounded-xl border border-neutral-200 p-5 shadow-xs">
+        <div className="bg-white rounded-xl border border-slate-200 dark:border-neutral-800 p-5 shadow-xs">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-neutral-900 flex items-center gap-2">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-neutral-50 flex items-center gap-2">
               <Users className="w-4 h-4 text-indigo-600" />
               {t.sprints.workloadDistribution || 'Баланс загрузки инженеров'}
             </h3>
-            <span className="text-xs text-neutral-500">Cap: 12 SP/чел</span>
+            <span className="text-xs text-slate-500 dark:text-neutral-500">Cap: 12 SP/чел</span>
           </div>
 
           <div className="space-y-3.5">
@@ -352,15 +352,15 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
                             className="w-4 h-4 rounded-full object-cover"
                           />
                         ) : (
-                          <div className="w-4 h-4 rounded-full bg-neutral-200 flex items-center justify-center text-[9px] font-bold">
+                          <div className="w-4 h-4 rounded-full bg-slate-200 dark:bg-neutral-800 flex items-center justify-center text-[9px] font-bold">
                             {item.userName.charAt(0)}
                           </div>
                         )}
-                        <span className="font-medium text-neutral-800">{item.userName}</span>
+                        <span className="font-medium text-slate-800 dark:text-neutral-100">{item.userName}</span>
                       </div>
 
                       <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-neutral-900">
+                        <span className="font-bold text-slate-900 dark:text-neutral-50">
                           {item.assignedSP} / {item.capacitySP} SP
                         </span>
                         <span
@@ -381,7 +381,7 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
                       </div>
                     </div>
 
-                    <div className="w-full bg-neutral-100 rounded-full h-2 overflow-hidden">
+                    <div className="w-full bg-slate-100 dark:bg-neutral-800 rounded-full h-2 overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all ${
                           isOver ? 'bg-rose-500' : isUnder ? 'bg-blue-500' : 'bg-emerald-500'
@@ -393,7 +393,7 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
                 );
               })
             ) : (
-              <div className="text-neutral-500 text-xs text-center py-4">
+              <div className="text-slate-500 dark:text-neutral-500 text-xs text-center py-4">
                 Загрузка рассчитывается...
               </div>
             )}
@@ -409,10 +409,10 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
               <Target className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-neutral-900">
+              <h3 className="text-base font-bold text-slate-900 dark:text-neutral-50">
                 {t.sprints.planRecommendation || 'Рекомендации для следующего спринта'}
               </h3>
-              <p className="text-xs text-neutral-600 mt-0.5">
+              <p className="text-xs text-slate-600 dark:text-neutral-300 mt-0.5">
                 AI рассчитывает оптимальный скоуп на основе исторической скорости команды
                 (Velocity) и приоритетов бэклога.
               </p>
@@ -441,12 +441,12 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
                 <span className="text-xs font-bold text-violet-900 uppercase tracking-wider">
                   {t.sprints.suggestedSprintGoal || 'Рекомендуемая цель спринта (Sprint Goal)'}
                 </span>
-                <div className="mt-2 p-3.5 bg-white rounded-xl border border-violet-200 text-xs text-neutral-900 font-medium leading-relaxed">
+                <div className="mt-2 p-3.5 bg-white rounded-xl border border-violet-200 text-xs text-slate-900 dark:text-neutral-50 font-medium leading-relaxed">
                   «{recommendation.suggestedSprintGoal}»
                 </div>
 
-                <div className="mt-3 text-xs text-neutral-600 leading-relaxed">
-                  <span className="font-semibold text-neutral-800">
+                <div className="mt-3 text-xs text-slate-600 dark:text-neutral-300 leading-relaxed">
+                  <span className="font-semibold text-slate-800 dark:text-neutral-100">
                     {t.sprints.rationale || 'Обоснование AI'}:
                   </span>{' '}
                   {recommendation.rationale}
@@ -473,12 +473,12 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
 
             {/* Recommended Tasks from Backlog */}
             <div>
-              <span className="text-xs font-bold text-neutral-800 uppercase tracking-wider block mb-2">
+              <span className="text-xs font-bold text-slate-800 dark:text-neutral-100 uppercase tracking-wider block mb-2">
                 Рекомендуемые задачи из Бэклога:
               </span>
 
               {backlogTasks.length === 0 ? (
-                <div className="p-4 text-center text-xs text-neutral-400 border border-dashed border-neutral-200 rounded-lg">
+                <div className="p-4 text-center text-xs text-slate-500 dark:text-neutral-400 border border-dashed border-slate-200 dark:border-neutral-800 rounded-lg">
                   Бэклог пуст
                 </div>
               ) : (
@@ -489,13 +489,13 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
                     return (
                       <div
                         key={task.id}
-                        className="bg-white p-3 rounded-lg border border-neutral-200 flex items-center justify-between gap-3 text-xs"
+                        className="bg-white p-3 rounded-lg border border-slate-200 dark:border-neutral-800 flex items-center justify-between gap-3 text-xs"
                       >
                         <div className="flex items-center gap-2 truncate">
                           <span className="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 font-bold text-[10px]">
                             {task.storyPoints || 3} SP
                           </span>
-                          <span className="font-medium text-neutral-800 truncate">
+                          <span className="font-medium text-slate-800 dark:text-neutral-100 truncate">
                             {task.title}
                           </span>
                         </div>
@@ -519,16 +519,16 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
       </div>
 
       {/* Interactive AI Sprint Copilot Chat */}
-      <div className="bg-white rounded-xl border border-neutral-200 p-5 shadow-xs">
+      <div className="bg-white rounded-xl border border-slate-200 dark:border-neutral-800 p-5 shadow-xs">
         <div className="flex items-center gap-2.5 mb-3">
           <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
             <Zap className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-neutral-900">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-neutral-50">
               Спросить AI Sprint Copilot о ходе выполнения
             </h3>
-            <p className="text-[11px] text-neutral-500">
+            <p className="text-[11px] text-slate-500 dark:text-neutral-500">
               Задайте любой вопрос по декомпозиции, рискам, балансу задач или стратегии спринта
             </p>
           </div>
@@ -540,7 +540,7 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
             value={customQuestion}
             onChange={(e) => setCustomQuestion(e.target.value)}
             placeholder="Например: Как лучше разгрузить этап Review и не потерять темп сгорания?"
-            className="flex-1 px-3 py-2 text-xs border border-neutral-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+            className="flex-1 px-3 py-2 text-xs border border-slate-300 dark:border-neutral-700 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
           />
           <button
             type="submit"
@@ -553,7 +553,7 @@ export function AiSprintAssistant({ sprint, onApplyGoal }: AiSprintAssistantProp
         </form>
 
         {customAnswer && (
-          <div className="mt-3 p-3.5 bg-neutral-50 rounded-lg border border-neutral-200 text-xs text-neutral-800 leading-relaxed animate-in fade-in">
+          <div className="mt-3 p-3.5 bg-slate-50 dark:bg-neutral-900 rounded-lg border border-slate-200 dark:border-neutral-800 text-xs text-slate-800 dark:text-neutral-100 leading-relaxed animate-in fade-in">
             <div className="font-semibold text-indigo-700 mb-1 flex items-center gap-1">
               <Sparkles className="w-3 h-3" /> Ответ AI Copilot:
             </div>

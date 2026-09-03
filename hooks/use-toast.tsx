@@ -219,23 +219,23 @@ function ToastCard({ toast, onDismiss }: { toast: ToastItem; onDismiss: () => vo
 
   return (
     <div
-      className={`pointer-events-auto relative overflow-hidden flex items-start gap-3 p-3.5 rounded-xl bg-neutral-900/95 border ${getBorderColor()} shadow-2xl shadow-black/80 backdrop-blur-md transition-all duration-200 animate-in fade-in slide-in-from-bottom-4`}
+      className={`pointer-events-auto relative overflow-hidden flex items-start gap-3 p-3.5 rounded-xl bg-white/95 dark:bg-neutral-900/95 border ${getBorderColor()} shadow-2xl shadow-black/80 backdrop-blur-md transition-all duration-200 animate-in fade-in slide-in-from-bottom-4`}
     >
       <div className="pt-0.5">{getIcon()}</div>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-xs font-bold text-neutral-100">{toast.title}</p>
+          <p className="text-xs font-bold text-slate-800 dark:text-neutral-100">{toast.title}</p>
           <button
             onClick={onDismiss}
-            className="text-neutral-500 hover:text-neutral-300 p-0.5 rounded transition-colors"
+            className="text-slate-500 dark:text-neutral-500 hover:text-slate-600 dark:hover:text-neutral-300 p-0.5 rounded transition-colors"
           >
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
 
         {toast.description && (
-          <p className="text-2xs text-neutral-400 mt-0.5 leading-relaxed break-words">
+          <p className="text-2xs text-slate-500 dark:text-neutral-400 mt-0.5 leading-relaxed break-words">
             {toast.description}
           </p>
         )}
@@ -255,7 +255,7 @@ function ToastCard({ toast, onDismiss }: { toast: ToastItem; onDismiss: () => vo
           {toast.action && (
             <button
               onClick={toast.action.onClick}
-              className="px-2.5 py-1 text-2xs font-semibold rounded-md bg-neutral-800 text-neutral-200 hover:bg-neutral-700 transition-colors"
+              className="px-2.5 py-1 text-2xs font-semibold rounded-md bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-200 hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors"
             >
               {toast.action.label}
             </button>

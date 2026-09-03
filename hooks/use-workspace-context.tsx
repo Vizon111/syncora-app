@@ -956,10 +956,10 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   // rendering here instead of pushing null-checks into every view/component.
   if (!currentUser || !currentWorkspace) {
     return (
-      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-neutral-950 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-6 h-6 border-2 border-neutral-700 border-t-neutral-300 rounded-full animate-spin" />
-          <span className="text-sm text-neutral-500">Loading your workspace…</span>
+          <div className="w-6 h-6 border-2 border-slate-300 dark:border-neutral-700 border-t-neutral-300 rounded-full animate-spin" />
+          <span className="text-sm text-slate-500 dark:text-neutral-500">Loading your workspace…</span>
         </div>
       </div>
     );
@@ -1056,26 +1056,26 @@ function CreateWorkspaceScreen({ onCreate }: { onCreate: (name: string) => Promi
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-50 dark:bg-neutral-950 flex items-center justify-center p-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm bg-neutral-900 border border-neutral-800 rounded-xl p-6 flex flex-col gap-4"
+        className="w-full max-w-sm bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-xl p-6 flex flex-col gap-4"
       >
         <div>
-          <h1 className="text-lg font-semibold text-neutral-100">Create your workspace</h1>
-          <p className="text-sm text-neutral-500 mt-1">
+          <h1 className="text-lg font-semibold text-slate-800 dark:text-neutral-100">Create your workspace</h1>
+          <p className="text-sm text-slate-500 dark:text-neutral-500 mt-1">
             You&apos;re signed in, but not part of any workspace yet. Give it a name to get started.
           </p>
         </div>
         <div>
-          <label className="text-sm text-neutral-400 block mb-1.5">Workspace name</label>
+          <label className="text-sm text-slate-500 dark:text-neutral-400 block mb-1.5">Workspace name</label>
           <input
             autoFocus
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Acme Inc"
-            className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-blue-600"
+            className="w-full bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-neutral-800 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-neutral-100 placeholder:text-slate-600 dark:placeholder:text-neutral-300 focus:outline-none focus:ring-1 focus:ring-blue-600"
           />
         </div>
         {error && <p className="text-sm text-red-400">{error}</p>}

@@ -244,7 +244,7 @@ export function AppShell() {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-white dark:bg-neutral-900/40">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-white/40 dark:bg-neutral-900/40">
         {/* Top Header Bar */}
         <header className="h-16 border-b border-slate-200 bg-slate-50/80 dark:border-neutral-800 dark:bg-neutral-950/80 backdrop-blur-md px-6 flex items-center justify-between gap-4 shrink-0 z-20">
           {/* Quick Search Bar */}

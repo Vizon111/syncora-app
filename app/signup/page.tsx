@@ -53,12 +53,12 @@ export default function SignupPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-neutral-950 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-slate-50 dark:bg-neutral-950 flex items-center justify-center px-4">
         <div className="w-full max-w-sm text-center">
           <CheckCircle2 size={40} className="mx-auto text-emerald-400 mb-4" />
-          <h1 className="text-xl font-semibold text-neutral-100 mb-2">Check your email</h1>
-          <p className="text-sm text-neutral-500">
-            We sent a confirmation link to <span className="text-neutral-300">{email}</span>. Click it to activate
+          <h1 className="text-xl font-semibold text-slate-800 dark:text-neutral-100 mb-2">Check your email</h1>
+          <p className="text-sm text-slate-500 dark:text-neutral-500">
+            We sent a confirmation link to <span className="text-slate-600 dark:text-neutral-300">{email}</span>. Click it to activate
             your account, then sign in.
           </p>
           <Link href="/login" className="inline-block mt-6 text-sm text-blue-400 hover:text-blue-300 font-medium">
@@ -70,16 +70,16 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-slate-50 dark:bg-neutral-950 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-semibold text-neutral-100">Syncora</h1>
-          <p className="text-sm text-neutral-500 mt-1">Create your account</p>
+          <h1 className="text-2xl font-semibold text-slate-800 dark:text-neutral-100">Syncora</h1>
+          <p className="text-sm text-slate-500 dark:text-neutral-500 mt-1">Create your account</p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 space-y-4 shadow-2xl"
+          className="bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-xl p-6 space-y-4 shadow-2xl"
         >
           {error && (
             <div className="flex items-start gap-2 bg-red-950/40 border border-red-900/50 rounded-lg px-3 py-2.5 text-sm text-red-300">
@@ -89,7 +89,7 @@ export default function SignupPage() {
           )}
 
           <div>
-            <label htmlFor="name" className="block text-xs font-medium text-neutral-400 mb-1.5">
+            <label htmlFor="name" className="block text-xs font-medium text-slate-500 dark:text-neutral-400 mb-1.5">
               Full name
             </label>
             <input
@@ -99,13 +99,13 @@ export default function SignupPage() {
               autoComplete="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600/50"
+              className="w-full bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-neutral-800 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-neutral-100 placeholder:text-slate-600 dark:placeholder:text-neutral-300 focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600/50"
               placeholder="Jane Doe"
             />
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-xs font-medium text-neutral-400 mb-1.5">
+            <label htmlFor="email" className="block text-xs font-medium text-slate-500 dark:text-neutral-400 mb-1.5">
               Email
             </label>
             <input
@@ -115,13 +115,13 @@ export default function SignupPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600/50"
+              className="w-full bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-neutral-800 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-neutral-100 placeholder:text-slate-600 dark:placeholder:text-neutral-300 focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600/50"
               placeholder="you@company.com"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-xs font-medium text-neutral-400 mb-1.5">
+            <label htmlFor="password" className="block text-xs font-medium text-slate-500 dark:text-neutral-400 mb-1.5">
               Password
             </label>
             <input
@@ -132,7 +132,7 @@ export default function SignupPage() {
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600/50"
+              className="w-full bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-neutral-800 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-neutral-100 placeholder:text-slate-600 dark:placeholder:text-neutral-300 focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600/50"
               placeholder="At least 8 characters"
             />
           </div>
@@ -147,7 +147,7 @@ export default function SignupPage() {
           </button>
         </form>
 
-        <p className="text-center text-sm text-neutral-500 mt-5">
+        <p className="text-center text-sm text-slate-500 dark:text-neutral-500 mt-5">
           Already have an account?{' '}
           <Link href="/login" className="text-blue-400 hover:text-blue-300 font-medium">
             Sign in

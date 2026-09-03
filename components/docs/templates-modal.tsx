@@ -238,22 +238,22 @@ export function TemplatesModal({ isOpen, onClose, onSelectTemplate }: TemplatesM
   const current = TEMPLATES.find((t) => t.id === selectedId) || TEMPLATES[0];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-neutral-900 border border-neutral-800 rounded-3xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-3xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
         {/* Modal Header */}
-        <div className="p-5 border-b border-neutral-800 flex items-center justify-between">
+        <div className="p-5 border-b border-slate-200 dark:border-neutral-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-neutral-100">{t.templates.title}</h2>
-              <p className="text-xs text-neutral-400 mt-0.5">{t.templates.subtitle}</p>
+              <h2 className="text-base font-bold text-slate-800 dark:text-neutral-100">{t.templates.title}</h2>
+              <p className="text-xs text-slate-500 dark:text-neutral-400 mt-0.5">{t.templates.subtitle}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 transition-colors"
+            className="p-2 rounded-xl text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200 hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -262,7 +262,7 @@ export function TemplatesModal({ isOpen, onClose, onSelectTemplate }: TemplatesM
         {/* Modal Body: Left list + Right preview */}
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           {/* Left Column: Template Cards */}
-          <div className="w-full md:w-80 border-r border-neutral-800/80 p-3 space-y-2 overflow-y-auto custom-scrollbar bg-neutral-950/40">
+          <div className="w-full md:w-80 border-r border-slate-200/80 dark:border-neutral-800/80 p-3 space-y-2 overflow-y-auto custom-scrollbar bg-slate-50/40 dark:bg-neutral-950/40">
             {TEMPLATES.map((tmpl) => {
               const isSelected = tmpl.id === selectedId;
               const Icon = tmpl.icon;
@@ -276,7 +276,7 @@ export function TemplatesModal({ isOpen, onClose, onSelectTemplate }: TemplatesM
                   className={`p-3 rounded-2xl cursor-pointer transition-all border ${
                     isSelected
                       ? 'bg-indigo-950/40 border-indigo-500/40 shadow-sm'
-                      : 'bg-neutral-900/40 border-neutral-800/80 hover:bg-neutral-850 hover:border-neutral-700'
+                      : 'bg-white/40 dark:bg-neutral-900/40 border-slate-200/80 dark:border-neutral-800/80 hover:bg-slate-100 dark:hover:bg-neutral-850 hover:border-slate-300 dark:hover:border-neutral-700'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -284,12 +284,12 @@ export function TemplatesModal({ isOpen, onClose, onSelectTemplate }: TemplatesM
                     <div className="min-w-0 flex-1">
                       <h4
                         className={`text-xs font-bold truncate ${
-                          isSelected ? 'text-indigo-200' : 'text-neutral-200'
+                          isSelected ? 'text-indigo-200' : 'text-slate-700 dark:text-neutral-200'
                         }`}
                       >
                         {title}
                       </h4>
-                      <p className="text-3xs text-neutral-400 mt-0.5 line-clamp-1">{desc}</p>
+                      <p className="text-3xs text-slate-500 dark:text-neutral-400 mt-0.5 line-clamp-1">{desc}</p>
                     </div>
                   </div>
 
@@ -297,7 +297,7 @@ export function TemplatesModal({ isOpen, onClose, onSelectTemplate }: TemplatesM
                     {tmpl.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="text-3xs font-medium px-1.5 py-0.2 rounded-md bg-neutral-800 text-neutral-400"
+                        className="text-3xs font-medium px-1.5 py-0.2 rounded-md bg-slate-100 dark:bg-neutral-800 text-slate-500 dark:text-neutral-400"
                       >
                         {tag}
                       </span>
@@ -309,26 +309,26 @@ export function TemplatesModal({ isOpen, onClose, onSelectTemplate }: TemplatesM
           </div>
 
           {/* Right Column: Template Content Preview */}
-          <div className="flex-1 flex flex-col bg-neutral-950/80 overflow-hidden">
-            <div className="p-3.5 border-b border-neutral-800/80 flex items-center justify-between bg-neutral-900/40">
+          <div className="flex-1 flex flex-col bg-slate-50/80 dark:bg-neutral-950/80 overflow-hidden">
+            <div className="p-3.5 border-b border-slate-200/80 dark:border-neutral-800/80 flex items-center justify-between bg-white/40 dark:bg-neutral-900/40">
               <div className="flex items-center gap-2">
                 <span className="text-lg">{current.emoji}</span>
-                <span className="text-xs font-bold text-neutral-200">{current.defaultTitle}</span>
+                <span className="text-xs font-bold text-slate-700 dark:text-neutral-200">{current.defaultTitle}</span>
               </div>
-              <span className="text-3xs text-neutral-500 font-mono">
+              <span className="text-3xs text-slate-500 dark:text-neutral-500 font-mono">
                 {current.content.split('\n').length} строк
               </span>
             </div>
 
-            <div className="flex-1 p-4 overflow-y-auto custom-scrollbar font-mono text-2xs text-neutral-300 whitespace-pre-wrap leading-relaxed">
+            <div className="flex-1 p-4 overflow-y-auto custom-scrollbar font-mono text-2xs text-slate-600 dark:text-neutral-300 whitespace-pre-wrap leading-relaxed">
               {current.content}
             </div>
 
             {/* Footer action */}
-            <div className="p-4 border-t border-neutral-800 bg-neutral-900/60 flex items-center justify-between">
+            <div className="p-4 border-t border-slate-200 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/60 flex items-center justify-between">
               <button
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 transition-colors"
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200 hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors"
               >
                 {t.common.cancel}
               </button>

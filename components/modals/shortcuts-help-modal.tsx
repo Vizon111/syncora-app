@@ -177,28 +177,28 @@ export function ShortcutsHelpModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/70 backdrop-blur-xs animate-in fade-in"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-xl bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+        className="w-full max-w-xl bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800 bg-neutral-900/80">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/80">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-400">
               <Keyboard className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-neutral-100">{t.shortcuts.title}</h3>
-              <p className="text-2xs text-neutral-400">{t.shortcuts.subtitle}</p>
+              <h3 className="text-sm font-bold text-slate-800 dark:text-neutral-100">{t.shortcuts.title}</h3>
+              <p className="text-2xs text-slate-500 dark:text-neutral-400">{t.shortcuts.subtitle}</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 rounded-lg transition-colors"
+            className="p-1.5 text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -208,7 +208,7 @@ export function ShortcutsHelpModal({
         <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
           {shortcutGroups.map((group, gIdx) => (
             <div key={gIdx} className="space-y-2.5">
-              <h4 className="text-2xs font-bold uppercase tracking-wider text-neutral-400">
+              <h4 className="text-2xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-400">
                 {group.title}
               </h4>
               <div className="grid grid-cols-1 gap-1.5">
@@ -218,15 +218,15 @@ export function ShortcutsHelpModal({
                     <div
                       key={iIdx}
                       onClick={item.action}
-                      className={`flex items-center justify-between p-2.5 rounded-xl border border-neutral-800/80 bg-neutral-950/60 transition-all ${
+                      className={`flex items-center justify-between p-2.5 rounded-xl border border-slate-200/80 dark:border-neutral-800/80 bg-slate-50/60 dark:bg-neutral-950/60 transition-all ${
                         item.action
-                          ? 'hover:border-neutral-700 hover:bg-neutral-800/50 cursor-pointer group'
+                          ? 'hover:border-slate-300 dark:hover:border-neutral-700 hover:bg-slate-100/50 dark:hover:bg-neutral-800/50 cursor-pointer group'
                           : ''
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <Icon className="w-3.5 h-3.5 text-neutral-500 group-hover:text-indigo-400 transition-colors" />
-                        <span className="text-xs text-neutral-200 group-hover:text-neutral-100 font-medium">
+                        <Icon className="w-3.5 h-3.5 text-slate-500 dark:text-neutral-500 group-hover:text-indigo-400 transition-colors" />
+                        <span className="text-xs text-slate-700 dark:text-neutral-200 group-hover:text-slate-800 dark:group-hover:text-neutral-100 font-medium">
                           {item.label}
                         </span>
                       </div>
@@ -235,7 +235,7 @@ export function ShortcutsHelpModal({
                         {item.keys.map((k, kIdx) => (
                           <kbd
                             key={kIdx}
-                            className="min-w-[22px] h-5 px-1.5 flex items-center justify-center text-2xs font-mono font-semibold text-neutral-300 bg-neutral-800 border border-neutral-700 rounded-md shadow-xs"
+                            className="min-w-[22px] h-5 px-1.5 flex items-center justify-center text-2xs font-mono font-semibold text-slate-600 dark:text-neutral-300 bg-slate-100 dark:bg-neutral-800 border border-slate-300 dark:border-neutral-700 rounded-md shadow-xs"
                           >
                             {k}
                           </kbd>
@@ -250,9 +250,9 @@ export function ShortcutsHelpModal({
         </div>
 
         {/* Footer Hint */}
-        <div className="px-6 py-3 border-t border-neutral-800 bg-neutral-950/60 flex items-center justify-between text-2xs text-neutral-500">
+        <div className="px-6 py-3 border-t border-slate-200 dark:border-neutral-800 bg-slate-50/60 dark:bg-neutral-950/60 flex items-center justify-between text-2xs text-slate-500 dark:text-neutral-500">
           <span>{t.shortcuts.hint}</span>
-          <kbd className="px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-400 font-mono text-2xs border border-neutral-700">
+          <kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-neutral-800 text-slate-500 dark:text-neutral-400 font-mono text-2xs border border-slate-300 dark:border-neutral-700">
             Esc
           </kbd>
         </div>

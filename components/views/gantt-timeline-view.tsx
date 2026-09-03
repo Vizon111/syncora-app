@@ -610,8 +610,8 @@ export function GanttTimelineView() {
       case 'todo':
       default:
         return {
-          bg: 'bg-neutral-800 text-neutral-200 border-neutral-700 shadow-black/40',
-          progress: 'bg-neutral-600',
+          bg: 'bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-200 border-slate-300 dark:border-neutral-700 shadow-black/40',
+          progress: 'bg-slate-300 dark:bg-neutral-600',
         };
     }
   };
@@ -645,9 +645,9 @@ export function GanttTimelineView() {
   }, [tasks, selectedTaskId]);
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-neutral-950 text-neutral-100">
+    <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50 dark:bg-neutral-950 text-slate-800 dark:text-neutral-100">
       {/* Top Header Bar */}
-      <div className="p-4 border-b border-neutral-800 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-neutral-950/80 backdrop-blur-md shrink-0">
+      <div className="p-4 border-b border-slate-200 dark:border-neutral-800 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-slate-50/80 dark:bg-neutral-950/80 backdrop-blur-md shrink-0">
         <div>
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
@@ -660,7 +660,7 @@ export function GanttTimelineView() {
                   v2.0
                 </span>
               </h1>
-              <p className="text-xs text-neutral-400 hidden sm:block">
+              <p className="text-xs text-slate-500 dark:text-neutral-400 hidden sm:block">
                 {t.gantt.subtitle}
               </p>
             </div>
@@ -670,13 +670,13 @@ export function GanttTimelineView() {
         {/* Action Controls */}
         <div className="flex flex-wrap items-center gap-2 self-stretch lg:self-auto">
           {/* Time Scale Switcher */}
-          <div className="flex items-center bg-neutral-900 border border-neutral-800 rounded-xl p-1">
+          <div className="flex items-center bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-xl p-1">
             <button
               onClick={() => setTimeScale('days')}
               className={`px-3 py-1 text-xs rounded-lg font-medium transition-all ${
                 timeScale === 'days'
                   ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-neutral-400 hover:text-neutral-200'
+                  : 'text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200'
               }`}
             >
               {t.gantt.scaleDays}
@@ -686,7 +686,7 @@ export function GanttTimelineView() {
               className={`px-3 py-1 text-xs rounded-lg font-medium transition-all ${
                 timeScale === 'weeks'
                   ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-neutral-400 hover:text-neutral-200'
+                  : 'text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200'
               }`}
             >
               {t.gantt.scaleWeeks}
@@ -696,7 +696,7 @@ export function GanttTimelineView() {
               className={`px-3 py-1 text-xs rounded-lg font-medium transition-all ${
                 timeScale === 'months'
                   ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-neutral-400 hover:text-neutral-200'
+                  : 'text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200'
               }`}
             >
               {t.gantt.scaleMonths}
@@ -704,12 +704,12 @@ export function GanttTimelineView() {
           </div>
 
           {/* Group By Switcher */}
-          <div className="flex items-center bg-neutral-900 border border-neutral-800 rounded-xl p-1">
+          <div className="flex items-center bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-xl p-1">
             <button
               onClick={() => setGroupBy('project')}
               title={t.gantt.groupByProject}
               className={`p-1.5 text-xs rounded-lg font-medium transition-all flex items-center gap-1.5 ${
-                groupBy === 'project' ? 'bg-neutral-800 text-indigo-400' : 'text-neutral-400 hover:text-neutral-200'
+                groupBy === 'project' ? 'bg-slate-100 dark:bg-neutral-800 text-indigo-400' : 'text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200'
               }`}
             >
               <Folder className="w-3.5 h-3.5" />
@@ -719,7 +719,7 @@ export function GanttTimelineView() {
               onClick={() => setGroupBy('sprint')}
               title={t.gantt.groupBySprint}
               className={`p-1.5 text-xs rounded-lg font-medium transition-all flex items-center gap-1.5 ${
-                groupBy === 'sprint' ? 'bg-neutral-800 text-indigo-400' : 'text-neutral-400 hover:text-neutral-200'
+                groupBy === 'sprint' ? 'bg-slate-100 dark:bg-neutral-800 text-indigo-400' : 'text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200'
               }`}
             >
               <Zap className="w-3.5 h-3.5" />
@@ -729,7 +729,7 @@ export function GanttTimelineView() {
               onClick={() => setGroupBy('assignee')}
               title={t.gantt.groupByAssignee}
               className={`p-1.5 text-xs rounded-lg font-medium transition-all flex items-center gap-1.5 ${
-                groupBy === 'assignee' ? 'bg-neutral-800 text-indigo-400' : 'text-neutral-400 hover:text-neutral-200'
+                groupBy === 'assignee' ? 'bg-slate-100 dark:bg-neutral-800 text-indigo-400' : 'text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200'
               }`}
             >
               <Users className="w-3.5 h-3.5" />
@@ -739,7 +739,7 @@ export function GanttTimelineView() {
               onClick={() => setGroupBy('none')}
               title={t.gantt.groupByNone}
               className={`p-1.5 text-xs rounded-lg font-medium transition-all flex items-center gap-1.5 ${
-                groupBy === 'none' ? 'bg-neutral-800 text-indigo-400' : 'text-neutral-400 hover:text-neutral-200'
+                groupBy === 'none' ? 'bg-slate-100 dark:bg-neutral-800 text-indigo-400' : 'text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200'
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
@@ -753,7 +753,7 @@ export function GanttTimelineView() {
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
               showCriticalPath
                 ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-md shadow-amber-500/10'
-                : 'bg-neutral-900 text-neutral-400 border-neutral-800 hover:border-neutral-700'
+                : 'bg-white dark:bg-neutral-900 text-slate-500 dark:text-neutral-400 border-slate-200 dark:border-neutral-800 hover:border-slate-300 dark:hover:border-neutral-700'
             }`}
             title={t.gantt.criticalPathTip}
           >
@@ -775,7 +775,7 @@ export function GanttTimelineView() {
           <button
             onClick={handleExportJson}
             title={t.gantt.exportJson}
-            className="p-2 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-neutral-300 transition-colors"
+            className="p-2 rounded-xl bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 hover:border-slate-300 dark:hover:border-neutral-700 text-slate-600 dark:text-neutral-300 transition-colors"
           >
             <Download className="w-4 h-4" />
           </button>
@@ -783,18 +783,18 @@ export function GanttTimelineView() {
       </div>
 
       {/* Filter and Date Navigation Toolbar */}
-      <div className="px-4 py-2.5 bg-neutral-900/50 border-b border-neutral-800/80 flex flex-wrap items-center justify-between gap-3 shrink-0 text-xs">
+      <div className="px-4 py-2.5 bg-white/50 dark:bg-neutral-900/50 border-b border-slate-200/80 dark:border-neutral-800/80 flex flex-wrap items-center justify-between gap-3 shrink-0 text-xs">
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[300px]">
           {/* Search */}
           <div className="relative min-w-[160px] max-w-[220px]">
-            <Search className="w-3.5 h-3.5 text-neutral-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-slate-500 dark:text-neutral-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder={t.common.searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-2.5 py-1 rounded-lg bg-neutral-900 border border-neutral-800 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-indigo-500"
+              className="w-full pl-8 pr-2.5 py-1 rounded-lg bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 text-xs text-slate-700 dark:text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-indigo-500"
             />
           </div>
 
@@ -802,7 +802,7 @@ export function GanttTimelineView() {
           <select
             value={selectedProjectId}
             onChange={(e) => setSelectedProjectId(e.target.value)}
-            className="px-2.5 py-1 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 text-xs focus:outline-none focus:border-indigo-500"
+            className="px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 text-slate-600 dark:text-neutral-300 text-xs focus:outline-none focus:border-indigo-500"
           >
             <option value="all">{t.gantt.filterProject}</option>
             {projects.map((p) => (
@@ -816,7 +816,7 @@ export function GanttTimelineView() {
           <select
             value={selectedSprintId}
             onChange={(e) => setSelectedSprintId(e.target.value)}
-            className="px-2.5 py-1 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 text-xs focus:outline-none focus:border-indigo-500"
+            className="px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 text-slate-600 dark:text-neutral-300 text-xs focus:outline-none focus:border-indigo-500"
           >
             <option value="all">{t.gantt.filterSprint}</option>
             {sprints.map((s) => (
@@ -831,7 +831,7 @@ export function GanttTimelineView() {
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="px-2.5 py-1 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 text-xs focus:outline-none focus:border-indigo-500"
+            className="px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 text-slate-600 dark:text-neutral-300 text-xs focus:outline-none focus:border-indigo-500"
           >
             <option value="all">{t.gantt.filterStatus}</option>
             <option value="todo">{t.tasks.todo}</option>
@@ -841,12 +841,12 @@ export function GanttTimelineView() {
           </select>
 
           {/* Toggle dependencies visibility */}
-          <label className="flex items-center gap-1.5 text-neutral-400 hover:text-neutral-200 cursor-pointer ml-1 select-none">
+          <label className="flex items-center gap-1.5 text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200 cursor-pointer ml-1 select-none">
             <input
               type="checkbox"
               checked={showDependencies}
               onChange={(e) => setShowDependencies(e.target.checked)}
-              className="rounded border-neutral-700 text-indigo-600 focus:ring-0 bg-neutral-900"
+              className="rounded border-slate-300 dark:border-neutral-700 text-indigo-600 focus:ring-0 bg-white dark:bg-neutral-900"
             />
             <span>{t.gantt.showDependencies}</span>
           </label>
@@ -856,41 +856,41 @@ export function GanttTimelineView() {
         <div className="flex items-center gap-1.5 ml-auto">
           <button
             onClick={() => setViewDateOffset((prev) => prev - (timeScale === 'days' ? 7 : 14))}
-            className="p-1.5 rounded-lg bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 text-neutral-300 transition-colors"
+            className="p-1.5 rounded-lg bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-600 dark:text-neutral-300 transition-colors"
             title="Prev Period"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => setViewDateOffset(0)}
-            className="px-2.5 py-1 rounded-lg bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 text-neutral-200 font-medium transition-colors"
+            className="px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200 font-medium transition-colors"
           >
             {t.gantt.today}
           </button>
           <button
             onClick={() => setViewDateOffset((prev) => prev + (timeScale === 'days' ? 7 : 14))}
-            className="p-1.5 rounded-lg bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 text-neutral-300 transition-colors"
+            className="p-1.5 rounded-lg bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-600 dark:text-neutral-300 transition-colors"
             title="Next Period"
           >
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
 
-          <div className="h-4 w-px bg-neutral-800 mx-1" />
+          <div className="h-4 w-px bg-slate-100 dark:bg-neutral-800 mx-1" />
 
           {/* Zoom controls */}
           <button
             onClick={() => setZoomLevel((z) => Math.max(0.7, z - 0.15))}
-            className="p-1.5 rounded-lg bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 text-neutral-300 transition-colors"
+            className="p-1.5 rounded-lg bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-600 dark:text-neutral-300 transition-colors"
             title={t.gantt.zoomOut}
           >
             <ZoomOut className="w-3.5 h-3.5" />
           </button>
-          <span className="text-3xs font-mono text-neutral-400 w-8 text-center">
+          <span className="text-3xs font-mono text-slate-500 dark:text-neutral-400 w-8 text-center">
             {Math.round(zoomLevel * 100)}%
           </span>
           <button
             onClick={() => setZoomLevel((z) => Math.min(1.6, z + 0.15))}
-            className="p-1.5 rounded-lg bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 text-neutral-300 transition-colors"
+            className="p-1.5 rounded-lg bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-600 dark:text-neutral-300 transition-colors"
             title={t.gantt.zoomIn}
           >
             <ZoomIn className="w-3.5 h-3.5" />
@@ -901,13 +901,13 @@ export function GanttTimelineView() {
       {/* Main Gantt Split Viewport */}
       <div className="flex-1 flex overflow-hidden relative select-none">
         {/* Left Tasks Tree Column */}
-        <div className="w-80 md:w-96 border-r border-neutral-800 bg-neutral-950 flex flex-col shrink-0 z-20 shadow-xl">
+        <div className="w-80 md:w-96 border-r border-slate-200 dark:border-neutral-800 bg-slate-50 dark:bg-neutral-950 flex flex-col shrink-0 z-20 shadow-xl">
           {/* Header Row */}
-          <div className="h-16 border-b border-neutral-800 bg-neutral-900/60 px-4 flex items-center justify-between shrink-0">
-            <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+          <div className="h-16 border-b border-slate-200 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/60 px-4 flex items-center justify-between shrink-0">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-neutral-400">
               {t.common.appName} Tasks ({filteredTasks.length})
             </span>
-            <span className="text-3xs text-neutral-500 font-mono">
+            <span className="text-3xs text-slate-500 dark:text-neutral-500 font-mono">
               {dependencyLinks.length} {t.gantt.dependenciesCount}
             </span>
           </div>
@@ -917,17 +917,17 @@ export function GanttTimelineView() {
             {taskGroups.map((g) => {
               const isCollapsed = collapsedGroups[g.id];
               return (
-                <div key={g.id} className="border-b border-neutral-800/40">
+                <div key={g.id} className="border-b border-slate-200/40 dark:border-neutral-800/40">
                   {/* Group Header */}
                   <div
                     onClick={() =>
                       setCollapsedGroups((prev) => ({ ...prev, [g.id]: !prev[g.id] }))
                     }
-                    className="h-[38px] px-3 bg-neutral-900/80 border-b border-neutral-800/60 flex items-center justify-between cursor-pointer hover:bg-neutral-800/80 transition-colors"
+                    className="h-[38px] px-3 bg-white/80 dark:bg-neutral-900/80 border-b border-slate-200/60 dark:border-neutral-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-100/80 dark:hover:bg-neutral-800/80 transition-colors"
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <ChevronRight
-                        className={`w-3.5 h-3.5 text-neutral-400 transition-transform ${
+                        className={`w-3.5 h-3.5 text-slate-500 dark:text-neutral-400 transition-transform ${
                           !isCollapsed ? 'rotate-90' : ''
                         }`}
                       />
@@ -937,16 +937,16 @@ export function GanttTimelineView() {
                           style={{ backgroundColor: g.color }}
                         />
                       )}
-                      <span className="text-xs font-bold text-neutral-200 truncate">
+                      <span className="text-xs font-bold text-slate-700 dark:text-neutral-200 truncate">
                         {g.title}
                       </span>
                       {g.badge && (
-                        <span className="text-3xs px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-400 font-mono">
+                        <span className="text-3xs px-1.5 py-0.5 rounded bg-slate-100 dark:bg-neutral-800 text-slate-500 dark:text-neutral-400 font-mono">
                           {g.badge}
                         </span>
                       )}
                     </div>
-                    <span className="text-2xs text-neutral-500 font-mono">
+                    <span className="text-2xs text-slate-500 dark:text-neutral-500 font-mono">
                       {g.tasks.length}
                     </span>
                   </div>
@@ -960,10 +960,10 @@ export function GanttTimelineView() {
                         <div
                           key={tItem.id}
                           onClick={() => setSelectedTaskId(tItem.id)}
-                          className={`h-[46px] px-3.5 flex items-center justify-between border-b border-neutral-800/40 cursor-pointer transition-colors ${
+                          className={`h-[46px] px-3.5 flex items-center justify-between border-b border-slate-200/40 dark:border-neutral-800/40 cursor-pointer transition-colors ${
                             isSelected
                               ? 'bg-indigo-950/40 border-l-2 border-l-indigo-500'
-                              : 'hover:bg-neutral-900/40'
+                              : 'hover:bg-white/40 dark:hover:bg-neutral-900/40'
                           }`}
                         >
                           <div className="flex items-center gap-2 min-w-0 pr-2">
@@ -974,10 +974,10 @@ export function GanttTimelineView() {
                               />
                             )}
                             <div className="min-w-0">
-                              <p className="text-xs text-neutral-200 truncate font-medium">
+                              <p className="text-xs text-slate-700 dark:text-neutral-200 truncate font-medium">
                                 {tItem.title}
                               </p>
-                              <div className="flex items-center gap-2 text-3xs text-neutral-500 font-mono">
+                              <div className="flex items-center gap-2 text-3xs text-slate-500 dark:text-neutral-500 font-mono">
                                 <span>SP: {tItem.storyPoints || 3}</span>
                                 <span>•</span>
                                 <span>
@@ -995,10 +995,10 @@ export function GanttTimelineView() {
                                 name={tItem.assignee.name}
                                 color={tItem.assignee.color}
                                 title={tItem.assignee.name}
-                                className="w-5 h-5 rounded-full object-cover border border-neutral-700"
+                                className="w-5 h-5 rounded-full object-cover border border-slate-300 dark:border-neutral-700"
                               />
                             ) : (
-                              <div className="w-5 h-5 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-3xs text-neutral-500">
+                              <div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-neutral-800 border border-slate-300 dark:border-neutral-700 flex items-center justify-center text-3xs text-slate-500 dark:text-neutral-500">
                                 ?
                               </div>
                             )}
@@ -1011,7 +1011,7 @@ export function GanttTimelineView() {
             })}
 
             {filteredTasks.length === 0 && (
-              <div className="p-8 text-center text-xs text-neutral-500">
+              <div className="p-8 text-center text-xs text-slate-500 dark:text-neutral-500">
                 {t.gantt.noTasksFound}
               </div>
             )}
@@ -1019,20 +1019,20 @@ export function GanttTimelineView() {
         </div>
 
         {/* Right Timeline / Gantt Canvas */}
-        <div className="flex-1 flex flex-col overflow-x-auto overflow-y-auto custom-scrollbar relative bg-neutral-950">
+        <div className="flex-1 flex flex-col overflow-x-auto overflow-y-auto custom-scrollbar relative bg-slate-50 dark:bg-neutral-950">
           <div
             style={{ width: totalWidth, height: rowPositions.totalCanvasHeight }}
             className="relative select-none"
           >
             {/* Sticky Header: Months & Days */}
-            <div className="sticky top-0 z-30 bg-neutral-950/95 border-b border-neutral-800 backdrop-blur-md">
+            <div className="sticky top-0 z-30 bg-slate-50/95 dark:bg-neutral-950/95 border-b border-slate-200 dark:border-neutral-800 backdrop-blur-md">
               {/* Months Row */}
-              <div className="h-8 flex border-b border-neutral-800/80">
+              <div className="h-8 flex border-b border-slate-200/80 dark:border-neutral-800/80">
                 {monthHeaders.map((m, idx) => (
                   <div
                     key={idx}
                     style={{ width: m.count * dayWidth }}
-                    className="h-full px-2 flex items-center text-xs font-semibold text-neutral-300 border-r border-neutral-800/60 bg-neutral-900/40"
+                    className="h-full px-2 flex items-center text-xs font-semibold text-slate-600 dark:text-neutral-300 border-r border-slate-200/60 dark:border-neutral-800/60 bg-white/40 dark:bg-neutral-900/40"
                   >
                     {m.name} {m.year}
                   </div>
@@ -1045,12 +1045,12 @@ export function GanttTimelineView() {
                   <div
                     key={idx}
                     style={{ width: dayWidth }}
-                    className={`h-full flex flex-col items-center justify-center text-3xs border-r border-neutral-800/40 transition-colors ${
+                    className={`h-full flex flex-col items-center justify-center text-3xs border-r border-slate-200/40 dark:border-neutral-800/40 transition-colors ${
                       col.isToday
                         ? 'bg-indigo-950/60 text-indigo-300 font-bold'
                         : col.isWeekend
-                        ? 'bg-neutral-900/40 text-neutral-500'
-                        : 'text-neutral-400'
+                        ? 'bg-white/40 dark:bg-neutral-900/40 text-slate-500 dark:text-neutral-500'
+                        : 'text-slate-500 dark:text-neutral-400'
                     }`}
                   >
                     <span className="font-mono">{col.dayNum}</span>
@@ -1066,11 +1066,11 @@ export function GanttTimelineView() {
                 <div
                   key={idx}
                   style={{ width: dayWidth }}
-                  className={`h-full border-r border-neutral-800/30 ${
+                  className={`h-full border-r border-slate-200/30 dark:border-neutral-800/30 ${
                     col.isToday
                       ? 'bg-indigo-500/5'
                       : col.isWeekend
-                      ? 'bg-neutral-900/20'
+                      ? 'bg-white/40 dark:bg-neutral-900/20'
                       : ''
                   }`}
                 />
@@ -1177,8 +1177,8 @@ export function GanttTimelineView() {
                 const isCollapsed = collapsedGroups[g.id];
                 return (
                   <div key={`canvas-group-${g.id}`}>
-                    <div className="h-[38px] bg-neutral-900/30 border-b border-neutral-800/40 flex items-center px-4">
-                      <span className="text-3xs font-semibold text-neutral-500 uppercase tracking-wider font-mono">
+                    <div className="h-[38px] bg-white/30 dark:bg-neutral-900/30 border-b border-slate-200/40 dark:border-neutral-800/40 flex items-center px-4">
+                      <span className="text-3xs font-semibold text-slate-500 dark:text-neutral-500 uppercase tracking-wider font-mono">
                         {g.title}
                       </span>
                     </div>
@@ -1214,7 +1214,7 @@ export function GanttTimelineView() {
                         return (
                           <div
                             key={`bar-${tItem.id}`}
-                            className="h-[46px] relative border-b border-neutral-800/20 flex items-center"
+                            className="h-[46px] relative border-b border-slate-200/20 dark:border-neutral-800/20 flex items-center"
                           >
                             <div
                               style={{
@@ -1269,7 +1269,7 @@ export function GanttTimelineView() {
 
       {/* Task Detail & Dependency Inspector Drawer */}
       {selectedTask && (
-        <div className="border-t border-neutral-800 bg-neutral-900 p-4 shrink-0 shadow-2xl z-30 animate-in slide-in-from-bottom-6">
+        <div className="border-t border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shrink-0 shadow-2xl z-30 animate-in slide-in-from-bottom-6">
           <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
@@ -1281,7 +1281,7 @@ export function GanttTimelineView() {
                       ? 'bg-blue-500/20 text-blue-300'
                       : selectedTask.status === 'review'
                       ? 'bg-amber-500/20 text-amber-300'
-                      : 'bg-neutral-800 text-neutral-400'
+                      : 'bg-slate-100 dark:bg-neutral-800 text-slate-500 dark:text-neutral-400'
                   }`}
                 >
                   {selectedTask.status}
@@ -1292,22 +1292,22 @@ export function GanttTimelineView() {
                       ? 'bg-rose-500/20 text-rose-300'
                       : selectedTask.priority === 'high'
                       ? 'bg-amber-500/20 text-amber-300'
-                      : 'bg-neutral-800 text-neutral-400'
+                      : 'bg-slate-100 dark:bg-neutral-800 text-slate-500 dark:text-neutral-400'
                   }`}
                 >
                   {selectedTask.priority}
                 </span>
-                <h3 className="text-sm font-bold text-neutral-100 truncate">
+                <h3 className="text-sm font-bold text-slate-800 dark:text-neutral-100 truncate">
                   {selectedTask.title}
                 </h3>
               </div>
 
               {/* Dependency Links */}
-              <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-neutral-400">
+              <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-neutral-400">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-neutral-500 font-semibold">{t.gantt.dependsOn}</span>
+                  <span className="text-slate-500 dark:text-neutral-500 font-semibold">{t.gantt.dependsOn}</span>
                   {(selectedTask.dependencies || []).length === 0 ? (
-                    <span className="text-neutral-600 text-2xs italic">
+                    <span className="text-slate-600 dark:text-neutral-300 text-2xs italic">
                       {t.gantt.noDependencies}
                     </span>
                   ) : (
@@ -1357,7 +1357,7 @@ export function GanttTimelineView() {
                     e.target.value = '';
                   }}
                   defaultValue=""
-                  className="px-2 py-0.5 text-2xs rounded bg-neutral-800 border border-neutral-700 text-neutral-300 focus:outline-none"
+                  className="px-2 py-0.5 text-2xs rounded bg-slate-100 dark:bg-neutral-800 border border-slate-300 dark:border-neutral-700 text-slate-600 dark:text-neutral-300 focus:outline-none"
                 >
                   <option value="" disabled>
                     + {t.gantt.addDependency}
@@ -1377,7 +1377,7 @@ export function GanttTimelineView() {
             <div className="flex items-center gap-3 shrink-0">
               {/* Progress Slider */}
               <div className="flex items-center gap-2 text-xs">
-                <span className="text-neutral-400">{t.gantt.progress}:</span>
+                <span className="text-slate-500 dark:text-neutral-400">{t.gantt.progress}:</span>
                 <input
                   type="range"
                   min="0"
@@ -1388,9 +1388,9 @@ export function GanttTimelineView() {
                     const prog = parseInt(e.target.value, 10);
                     await updateTask({ ...selectedTask, progress: prog });
                   }}
-                  className="w-24 accent-indigo-500 bg-neutral-800"
+                  className="w-24 accent-indigo-500 bg-slate-100 dark:bg-neutral-800"
                 />
-                <span className="text-xs font-mono text-neutral-300 w-8">
+                <span className="text-xs font-mono text-slate-600 dark:text-neutral-300 w-8">
                   {selectedTask.progress ?? 0}%
                 </span>
               </div>
@@ -1398,7 +1398,7 @@ export function GanttTimelineView() {
               {/* Close Button */}
               <button
                 onClick={() => setSelectedTaskId(null)}
-                className="p-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-neutral-200"
+                className="p-1.5 rounded-lg bg-slate-100 dark:bg-neutral-800 hover:bg-slate-200 dark:hover:bg-neutral-700 text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1409,9 +1409,9 @@ export function GanttTimelineView() {
 
       {/* AI Schedule Optimizer Findings Modal */}
       {isAiModalOpen && aiOptimizationResult && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl animate-in zoom-in-95">
-            <div className="flex items-start justify-between gap-4 pb-4 border-b border-neutral-800">
+        <div className="fixed inset-0 z-50 bg-black/40 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-200 dark:border-neutral-800">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
                   <Sparkles className="w-5 h-5" />
@@ -1420,14 +1420,14 @@ export function GanttTimelineView() {
                   <h3 className="text-base font-bold text-white">
                     {t.gantt.aiOptimizer}
                   </h3>
-                  <p className="text-xs text-neutral-400">
+                  <p className="text-xs text-slate-500 dark:text-neutral-400">
                     {t.gantt.aiOptimizerDesc}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setIsAiModalOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-neutral-200"
+                className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-neutral-800 text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1444,7 +1444,7 @@ export function GanttTimelineView() {
 
               {/* Adjustments Table */}
               <div>
-                <h4 className="text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-2">
+                <h4 className="text-xs font-semibold text-slate-600 dark:text-neutral-300 uppercase tracking-wider mb-2">
                   Proposed Date Realignment ({aiOptimizationResult.adjustedTasks.length}):
                 </h4>
                 <div className="space-y-2">
@@ -1453,10 +1453,10 @@ export function GanttTimelineView() {
                     return (
                       <div
                         key={adj.id}
-                        className="p-3 rounded-xl bg-neutral-950 border border-neutral-800 text-xs flex flex-col gap-1.5"
+                        className="p-3 rounded-xl bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-neutral-800 text-xs flex flex-col gap-1.5"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-semibold text-neutral-200">
+                          <span className="font-semibold text-slate-700 dark:text-neutral-200">
                             {task?.title || adj.id}
                           </span>
                           <span className="text-3xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
@@ -1464,7 +1464,7 @@ export function GanttTimelineView() {
                           </span>
                         </div>
                         {adj.reason && (
-                          <p className="text-2xs text-neutral-400">{adj.reason}</p>
+                          <p className="text-2xs text-slate-500 dark:text-neutral-400">{adj.reason}</p>
                         )}
                       </div>
                     );
@@ -1474,10 +1474,10 @@ export function GanttTimelineView() {
             </div>
 
             {/* Actions */}
-            <div className="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-neutral-800">
+            <div className="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-neutral-800">
               <button
                 onClick={() => setIsAiModalOpen(false)}
-                className="px-4 py-2 text-xs font-medium rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300"
+                className="px-4 py-2 text-xs font-medium rounded-xl bg-slate-100 dark:bg-neutral-800 hover:bg-slate-200 dark:hover:bg-neutral-700 text-slate-600 dark:text-neutral-300"
               >
                 {t.common.cancel}
               </button>

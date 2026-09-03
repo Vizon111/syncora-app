@@ -50,7 +50,7 @@ export function TasksKanbanView() {
   const { success, error } = useToast();
 
   const COLUMNS: { id: TaskStatus; label: string; color: string; badgeBg: string }[] = [
-    { id: 'todo', label: t.tasks.todo, color: 'border-neutral-700', badgeBg: 'bg-neutral-800 text-neutral-300' },
+    { id: 'todo', label: t.tasks.todo, color: 'border-slate-300 dark:border-neutral-700', badgeBg: 'bg-slate-100 dark:bg-neutral-800 text-slate-600 dark:text-neutral-300' },
     { id: 'in_progress', label: t.tasks.inProgress, color: 'border-blue-500/40', badgeBg: 'bg-blue-500/10 text-blue-400' },
     { id: 'review', label: t.tasks.review, color: 'border-amber-500/40', badgeBg: 'bg-amber-500/10 text-amber-400' },
     { id: 'done', label: t.tasks.done, color: 'border-emerald-500/40', badgeBg: 'bg-emerald-500/10 text-emerald-400' },
@@ -60,7 +60,7 @@ export function TasksKanbanView() {
     { id: 'urgent', label: t.tasks.priorityBlocker, color: 'text-rose-400 bg-rose-500/10 border-rose-500/20' },
     { id: 'high', label: t.tasks.priorityHigh, color: 'text-amber-400 bg-amber-500/10 border-amber-500/20' },
     { id: 'medium', label: t.tasks.priorityMedium, color: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
-    { id: 'low', label: t.tasks.priorityLow, color: 'text-neutral-400 bg-neutral-800 border-neutral-700' },
+    { id: 'low', label: t.tasks.priorityLow, color: 'text-slate-500 dark:text-neutral-400 bg-slate-100 dark:bg-neutral-800 border-slate-300 dark:border-neutral-700' },
   ];
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -309,10 +309,10 @@ export function TasksKanbanView() {
   return (
     <div className="flex-1 flex flex-col h-full p-6 max-w-7xl mx-auto w-full animate-in fade-in duration-200">
       {/* Header & Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-neutral-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200 dark:border-neutral-800">
         <div>
-          <h2 className="text-xl font-bold text-neutral-100">{t.tasks.title}</h2>
-          <p className="text-xs text-neutral-400">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-neutral-100">{t.tasks.title}</h2>
+          <p className="text-xs text-slate-500 dark:text-neutral-400">
             {t.tasks.subtitle}
           </p>
         </div>
@@ -320,7 +320,7 @@ export function TasksKanbanView() {
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => setIsAutomationsOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-neutral-300 bg-neutral-900 border border-neutral-800 hover:border-neutral-700 hover:text-white rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 dark:text-neutral-300 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 hover:border-slate-300 dark:hover:border-neutral-700 hover:text-white rounded-lg transition-colors"
             title={t.automations.title}
           >
             <Zap className="w-3.5 h-3.5 text-amber-400" />
@@ -329,7 +329,7 @@ export function TasksKanbanView() {
 
           <button
             onClick={() => setIsExportOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-neutral-300 bg-neutral-900 border border-neutral-800 hover:border-neutral-700 hover:text-white rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 dark:text-neutral-300 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 hover:border-slate-300 dark:hover:border-neutral-700 hover:text-white rounded-lg transition-colors"
             title={t.exportStandup.title}
           >
             <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
@@ -353,24 +353,24 @@ export function TasksKanbanView() {
       <div className="flex flex-wrap items-center gap-3 py-4">
         {/* Search */}
         <div className="relative min-w-[220px]">
-          <Search className="w-4 h-4 absolute left-3 top-2.5 text-neutral-500" />
+          <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-500 dark:text-neutral-500" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t.tasks.searchTasks}
-            className="w-full pl-9 pr-3 py-1.5 text-xs bg-neutral-900 border border-neutral-800 rounded-lg text-neutral-200 placeholder-neutral-500 focus:outline-hidden focus:border-indigo-500"
+            className="w-full pl-9 pr-3 py-1.5 text-xs bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-lg text-slate-700 dark:text-neutral-200 placeholder-neutral-500 focus:outline-hidden focus:border-indigo-500"
           />
         </div>
 
         {/* Project Selector */}
-        <div className="flex items-center gap-1.5 text-xs text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5">
-          <Filter className="w-3.5 h-3.5 text-neutral-500" />
+        <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-neutral-400 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-lg px-2.5 py-1.5">
+          <Filter className="w-3.5 h-3.5 text-slate-500 dark:text-neutral-500" />
           <span>{t.tasks.project}:</span>
           <select
             value={filterProject}
             onChange={(e) => setFilterProject(e.target.value)}
-            className="bg-transparent text-neutral-200 focus:outline-hidden text-xs cursor-pointer"
+            className="bg-transparent text-slate-700 dark:text-neutral-200 focus:outline-hidden text-xs cursor-pointer"
           >
             <option value="all">{t.tasks.filterAll}</option>
             {projects.map((p) => (
@@ -382,12 +382,12 @@ export function TasksKanbanView() {
         </div>
 
         {/* Priority Selector */}
-        <div className="flex items-center gap-1.5 text-xs text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5">
+        <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-neutral-400 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-lg px-2.5 py-1.5">
           <span>{t.tasks.priorityLabel}:</span>
           <select
             value={filterPriority}
             onChange={(e) => setFilterPriority(e.target.value)}
-            className="bg-transparent text-neutral-200 focus:outline-hidden text-xs cursor-pointer"
+            className="bg-transparent text-slate-700 dark:text-neutral-200 focus:outline-hidden text-xs cursor-pointer"
           >
             <option value="all">{t.tasks.filterPriority}</option>
             {PRIORITIES.map((pr) => (
@@ -399,13 +399,13 @@ export function TasksKanbanView() {
         </div>
 
         {/* Sprint Selector */}
-        <div className="flex items-center gap-1.5 text-xs text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5">
+        <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-neutral-400 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-lg px-2.5 py-1.5">
           <Zap className="w-3.5 h-3.5 text-amber-500" />
           <span>{t.tasks.sprint}:</span>
           <select
             value={filterSprint}
             onChange={(e) => setFilterSprint(e.target.value)}
-            className="bg-transparent text-neutral-200 focus:outline-hidden text-xs cursor-pointer max-w-[140px] truncate"
+            className="bg-transparent text-slate-700 dark:text-neutral-200 focus:outline-hidden text-xs cursor-pointer max-w-[140px] truncate"
           >
             <option value="all">{t.tasks.filterSprint}</option>
             <option value="active">{t.tasks.activeSprintOnly}</option>
@@ -418,7 +418,7 @@ export function TasksKanbanView() {
           </select>
         </div>
 
-        <div className="ml-auto text-2xs text-neutral-500">
+        <div className="ml-auto text-2xs text-slate-500 dark:text-neutral-500">
           {filteredTasks.length} / {tasks.length}
         </div>
       </div>
@@ -434,14 +434,14 @@ export function TasksKanbanView() {
               key={col.id}
               onDragOver={(e) => handleDragOver(e, col.id)}
               onDrop={(e) => handleDrop(e, col.id)}
-              className={`flex flex-col rounded-xl bg-neutral-900/60 border ${
-                isOver ? 'border-indigo-500 bg-indigo-950/20' : 'border-neutral-800/80'
+              className={`flex flex-col rounded-xl bg-white/60 dark:bg-neutral-900/60 border ${
+                isOver ? 'border-indigo-500 bg-indigo-950/20' : 'border-slate-200/80 dark:border-neutral-800/80'
               } p-3 transition-colors min-w-[270px] max-h-[calc(100vh-250px)]`}
             >
               {/* Column Header */}
-              <div className="flex items-center justify-between pb-3 mb-2 border-b border-neutral-800/60">
+              <div className="flex items-center justify-between pb-3 mb-2 border-b border-slate-200/60 dark:border-neutral-800/60">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-neutral-200 uppercase tracking-wider">{col.label}</span>
+                  <span className="text-xs font-bold text-slate-700 dark:text-neutral-200 uppercase tracking-wider">{col.label}</span>
                   <span className={`text-2xs font-semibold px-2 py-0.5 rounded-full ${col.badgeBg}`}>
                     {colTasks.length}
                   </span>
@@ -451,7 +451,7 @@ export function TasksKanbanView() {
                     setNewTaskProject(projects[0]?.id || 'prj_flowspace_core');
                     setIsCreateOpen(true);
                   }}
-                  className="p-1 text-neutral-500 hover:text-neutral-200 rounded hover:bg-neutral-800 transition-colors"
+                  className="p-1 text-slate-500 dark:text-neutral-500 hover:text-slate-700 dark:hover:text-neutral-200 rounded hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
@@ -471,7 +471,7 @@ export function TasksKanbanView() {
                       draggable
                       onDragStart={(e) => handleDragStart(e, task.id)}
                       onClick={() => setSelectedTask(task)}
-                      className={`group p-3.5 rounded-lg bg-neutral-950/90 border border-neutral-800 hover:border-neutral-700 cursor-grab active:cursor-grabbing transition-all hover:shadow-lg ${
+                      className={`group p-3.5 rounded-lg bg-slate-50/90 dark:bg-neutral-950/90 border border-slate-200 dark:border-neutral-800 hover:border-slate-300 dark:hover:border-neutral-700 cursor-grab active:cursor-grabbing transition-all hover:shadow-lg ${
                         draggedTaskId === task.id ? 'opacity-40 border-dashed border-indigo-400' : ''
                       }`}
                     >
@@ -494,7 +494,7 @@ export function TasksKanbanView() {
                               {taskSprint.name}
                             </span>
                           ) : (
-                            <span className="text-3xs font-normal text-neutral-500 bg-neutral-900 px-1.5 py-0.5 rounded">
+                            <span className="text-3xs font-normal text-slate-500 dark:text-neutral-500 bg-white dark:bg-neutral-900 px-1.5 py-0.5 rounded">
                               Backlog
                             </span>
                           )}
@@ -502,20 +502,20 @@ export function TasksKanbanView() {
                       </div>
 
                       {/* Task Title */}
-                      <h4 className="text-xs font-semibold text-neutral-100 group-hover:text-indigo-400 line-clamp-2 transition-colors">
+                      <h4 className="text-xs font-semibold text-slate-800 dark:text-neutral-100 group-hover:text-indigo-400 line-clamp-2 transition-colors">
                         {task.title}
                       </h4>
 
                       {/* Subtasks Progress */}
                       {totalSubtasks > 0 && (
-                        <div className="mt-2.5 flex items-center justify-between text-2xs text-neutral-400">
+                        <div className="mt-2.5 flex items-center justify-between text-2xs text-slate-500 dark:text-neutral-400">
                           <div className="flex items-center gap-1">
-                            <CheckSquare className="w-3 h-3 text-neutral-500" />
+                            <CheckSquare className="w-3 h-3 text-slate-500 dark:text-neutral-500" />
                             <span>
                               {completedSubtasks}/{totalSubtasks} {t.tasks.subtasks}
                             </span>
                           </div>
-                          <div className="w-16 h-1 bg-neutral-800 rounded-full overflow-hidden">
+                          <div className="w-16 h-1 bg-slate-100 dark:bg-neutral-800 rounded-full overflow-hidden">
                             <div
                               className="h-full bg-emerald-500 rounded-full"
                               style={{ width: `${(completedSubtasks / totalSubtasks) * 100}%` }}
@@ -526,7 +526,7 @@ export function TasksKanbanView() {
 
                       {/* Acceptance Criteria Progress */}
                       {(task.acceptanceCriteria || []).length > 0 && (
-                        <div className="mt-1.5 flex items-center justify-between text-2xs text-neutral-400">
+                        <div className="mt-1.5 flex items-center justify-between text-2xs text-slate-500 dark:text-neutral-400">
                           <div className="flex items-center gap-1 text-emerald-400/90 font-medium">
                             <ShieldCheck className="w-3 h-3 text-emerald-400" />
                             <span>
@@ -534,7 +534,7 @@ export function TasksKanbanView() {
                               {(task.acceptanceCriteria || []).length} DoD
                             </span>
                           </div>
-                          <div className="w-16 h-1 bg-neutral-800 rounded-full overflow-hidden">
+                          <div className="w-16 h-1 bg-slate-100 dark:bg-neutral-800 rounded-full overflow-hidden">
                             <div
                               className="h-full bg-emerald-400 rounded-full"
                               style={{
@@ -550,7 +550,7 @@ export function TasksKanbanView() {
                       )}
 
                       {/* Footer: Assignee & Time Tracking Button */}
-                      <div className="mt-3 pt-2.5 border-t border-neutral-900 flex items-center justify-between text-2xs text-neutral-500">
+                      <div className="mt-3 pt-2.5 border-t border-slate-300 dark:border-neutral-900 flex items-center justify-between text-2xs text-slate-500 dark:text-neutral-500">
                         <div className="flex items-center gap-1.5">
                           {task.assignee ? (
                             <Avatar
@@ -558,12 +558,12 @@ export function TasksKanbanView() {
                               name={task.assignee.name}
                               color={task.assignee.color}
                               title={`${t.tasks.assignedTo} ${task.assignee.name}`}
-                              className="w-5 h-5 rounded-full object-cover border border-neutral-700"
+                              className="w-5 h-5 rounded-full object-cover border border-slate-300 dark:border-neutral-700"
                             />
                           ) : (
-                            <span className="text-neutral-600 italic">{t.tasks.unassigned}</span>
+                            <span className="text-slate-600 dark:text-neutral-300 italic">{t.tasks.unassigned}</span>
                           )}
-                          <span className="text-neutral-400 truncate max-w-[70px]">
+                          <span className="text-slate-500 dark:text-neutral-400 truncate max-w-[70px]">
                             {task.assignee?.name?.split(' ')[0]}
                           </span>
                         </div>
@@ -576,7 +576,7 @@ export function TasksKanbanView() {
                               e.stopPropagation();
                               setTimeTrackingTask(task);
                             }}
-                            className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-neutral-900 hover:bg-neutral-800 text-violet-300 border border-violet-900/40 transition-colors"
+                            className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-white dark:bg-neutral-900 hover:bg-slate-100 dark:hover:bg-neutral-800 text-violet-300 border border-violet-900/40 transition-colors"
                             title="Логирование и таймер"
                           >
                             <Clock className="w-3 h-3 text-violet-400" />
@@ -584,7 +584,7 @@ export function TasksKanbanView() {
                           </button>
 
                           {(task.commentsCount || 0) > 0 && (
-                            <div className="flex items-center gap-0.5 text-neutral-400">
+                            <div className="flex items-center gap-0.5 text-slate-500 dark:text-neutral-400">
                               <MessageSquare className="w-3 h-3" />
                               <span>{task.commentsCount}</span>
                             </div>
@@ -596,7 +596,7 @@ export function TasksKanbanView() {
                 })}
 
                 {colTasks.length === 0 && (
-                  <div className="py-8 text-center border border-dashed border-neutral-800/60 rounded-lg text-2xs text-neutral-600">
+                  <div className="py-8 text-center border border-dashed border-slate-200/60 dark:border-neutral-800/60 rounded-lg text-2xs text-slate-600 dark:text-neutral-300">
                     {t.tasks.dropTasksHere}
                   </div>
                 )}
@@ -608,16 +608,16 @@ export function TasksKanbanView() {
 
       {/* Create Task Modal */}
       {isCreateOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-14 sm:pt-16 p-4 bg-black/70 backdrop-blur-xs animate-in fade-in overflow-y-auto">
-          <div className="w-full max-w-xl bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col my-auto max-h-[90vh]">
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-neutral-800 bg-neutral-950/60">
-              <h3 className="text-sm font-semibold text-neutral-100 flex items-center gap-2">
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-14 sm:pt-16 p-4 bg-black/40 dark:bg-black/70 backdrop-blur-xs animate-in fade-in overflow-y-auto">
+          <div className="w-full max-w-xl bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col my-auto max-h-[90vh]">
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-neutral-800 bg-slate-50/60 dark:bg-neutral-950/60">
+              <h3 className="text-sm font-semibold text-slate-800 dark:text-neutral-100 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-indigo-400" />
                 {t.tasks.createTaskModalTitle}
               </h3>
               <button
                 onClick={() => setIsCreateOpen(false)}
-                className="p-1.5 text-neutral-400 hover:text-neutral-200 rounded-lg hover:bg-neutral-800"
+                className="p-1.5 text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200 rounded-lg hover:bg-slate-100 dark:hover:bg-neutral-800"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -625,7 +625,7 @@ export function TasksKanbanView() {
 
             <form onSubmit={handleCreateTaskSubmit} className="p-5 space-y-4 overflow-y-auto custom-scrollbar flex-1">
               <div>
-                <label className="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-neutral-300 uppercase tracking-wider mb-1">
                   {t.tasks.titleLabel}
                 </label>
                 <input
@@ -634,12 +634,12 @@ export function TasksKanbanView() {
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
                   placeholder={t.tasks.titlePlaceholder}
-                  className="w-full px-3.5 py-2 text-xs bg-neutral-950 border border-neutral-800 rounded-lg text-neutral-100 placeholder-neutral-500 focus:outline-hidden focus:border-indigo-500"
+                  className="w-full px-3.5 py-2 text-xs bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-neutral-800 rounded-lg text-slate-800 dark:text-neutral-100 placeholder-neutral-500 focus:outline-hidden focus:border-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-1">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-neutral-300 uppercase tracking-wider mb-1">
                   {t.tasks.descLabel}
                 </label>
                 <textarea
@@ -647,19 +647,19 @@ export function TasksKanbanView() {
                   value={newTaskDesc}
                   onChange={(e) => setNewTaskDesc(e.target.value)}
                   placeholder={t.tasks.descPlaceholder}
-                  className="w-full px-3 py-2 text-xs bg-neutral-950 border border-neutral-800 rounded-lg text-neutral-100 placeholder-neutral-500 focus:outline-hidden focus:border-indigo-500 resize-none"
+                  className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-neutral-800 rounded-lg text-slate-800 dark:text-neutral-100 placeholder-neutral-500 focus:outline-hidden focus:border-indigo-500 resize-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-neutral-300 uppercase tracking-wider mb-1">
                     {t.tasks.projectLabel}
                   </label>
                   <select
                     value={newTaskProject}
                     onChange={(e) => setNewTaskProject(e.target.value)}
-                    className="w-full px-2.5 py-1.5 text-xs bg-neutral-950 border border-neutral-800 rounded-lg text-neutral-100 focus:outline-hidden"
+                    className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-neutral-800 rounded-lg text-slate-800 dark:text-neutral-100 focus:outline-hidden"
                   >
                     {projects.map((p) => (
                       <option key={p.id} value={p.id}>
@@ -670,13 +670,13 @@ export function TasksKanbanView() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-neutral-300 uppercase tracking-wider mb-1">
                     {t.tasks.priorityLabel}
                   </label>
                   <select
                     value={newTaskPriority}
                     onChange={(e) => setNewTaskPriority(e.target.value as TaskPriority)}
-                    className="w-full px-2.5 py-1.5 text-xs bg-neutral-950 border border-neutral-800 rounded-lg text-neutral-100 focus:outline-hidden"
+                    className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-neutral-800 rounded-lg text-slate-800 dark:text-neutral-100 focus:outline-hidden"
                   >
                     {PRIORITIES.map((pr) => (
                       <option key={pr.id} value={pr.id}>
@@ -689,13 +689,13 @@ export function TasksKanbanView() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-neutral-300 uppercase tracking-wider mb-1">
                     {t.tasks.assigneeLabel}
                   </label>
                   <select
                     value={newTaskAssignee}
                     onChange={(e) => setNewTaskAssignee(e.target.value)}
-                    className="w-full px-2.5 py-1.5 text-xs bg-neutral-950 border border-neutral-800 rounded-lg text-neutral-100 focus:outline-hidden"
+                    className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-neutral-800 rounded-lg text-slate-800 dark:text-neutral-100 focus:outline-hidden"
                   >
                     {allUsers.map((u) => (
                       <option key={u.id} value={u.id}>
@@ -706,7 +706,7 @@ export function TasksKanbanView() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-1">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-neutral-300 uppercase tracking-wider mb-1">
                     {t.tasks.labelsLabel}
                   </label>
                   <input
@@ -714,22 +714,22 @@ export function TasksKanbanView() {
                     value={newTaskLabels}
                     onChange={(e) => setNewTaskLabels(e.target.value)}
                     placeholder={t.tasks.labelsPlaceholder}
-                    className="w-full px-2.5 py-1.5 text-xs bg-neutral-950 border border-neutral-800 rounded-lg text-neutral-100 focus:outline-hidden"
+                    className="w-full px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-neutral-800 rounded-lg text-slate-800 dark:text-neutral-100 focus:outline-hidden"
                   />
                 </div>
               </div>
 
               {/* Sprint and Story Points & Estimated Hours */}
-              <div className="grid grid-cols-3 gap-3 p-3 rounded-xl bg-neutral-950/60 border border-neutral-800/60">
+              <div className="grid grid-cols-3 gap-3 p-3 rounded-xl bg-slate-50/60 dark:bg-neutral-950/60 border border-slate-200/60 dark:border-neutral-800/60">
                 <div>
-                  <label className="block text-2xs font-semibold text-neutral-300 uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <label className="block text-2xs font-semibold text-slate-600 dark:text-neutral-300 uppercase tracking-wider mb-1 flex items-center gap-1">
                     <Zap className="w-3 h-3 text-amber-400" />
                     {t.tasks.sprint}
                   </label>
                   <select
                     value={newTaskSprintId}
                     onChange={(e) => setNewTaskSprintId(e.target.value)}
-                    className="w-full px-2 py-1.5 text-xs bg-neutral-900 border border-neutral-800 rounded-lg text-neutral-100 focus:outline-hidden"
+                    className="w-full px-2 py-1.5 text-xs bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-lg text-slate-800 dark:text-neutral-100 focus:outline-hidden"
                   >
                     <option value="">{t.tasks.backlog}</option>
                     {sprints.map((s) => (
@@ -741,13 +741,13 @@ export function TasksKanbanView() {
                 </div>
 
                 <div>
-                  <label className="block text-2xs font-semibold text-neutral-300 uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <label className="block text-2xs font-semibold text-slate-600 dark:text-neutral-300 uppercase tracking-wider mb-1 flex items-center gap-1">
                     ⚡ {t.tasks.storyPoints}
                   </label>
                   <select
                     value={newTaskStoryPoints}
                     onChange={(e) => setNewTaskStoryPoints(Number(e.target.value))}
-                    className="w-full px-2 py-1.5 text-xs bg-neutral-900 border border-neutral-800 rounded-lg text-neutral-100 focus:outline-hidden font-mono font-bold"
+                    className="w-full px-2 py-1.5 text-xs bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-lg text-slate-800 dark:text-neutral-100 focus:outline-hidden font-mono font-bold"
                   >
                     {[1, 2, 3, 5, 8, 13, 21].map((pts) => (
                       <option key={pts} value={pts}>
@@ -758,7 +758,7 @@ export function TasksKanbanView() {
                 </div>
 
                 <div>
-                  <label className="block text-2xs font-semibold text-neutral-300 uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <label className="block text-2xs font-semibold text-slate-600 dark:text-neutral-300 uppercase tracking-wider mb-1 flex items-center gap-1">
                     <Clock className="w-3 h-3 text-blue-400" />
                     {t.tasks.estimatedHours}
                   </label>
@@ -768,7 +768,7 @@ export function TasksKanbanView() {
                     max="200"
                     value={newTaskEstimatedHours}
                     onChange={(e) => setNewTaskEstimatedHours(Math.max(1, Number(e.target.value)))}
-                    className="w-full px-2 py-1.5 text-xs bg-neutral-900 border border-neutral-800 rounded-lg text-neutral-100 focus:outline-hidden font-mono"
+                    className="w-full px-2 py-1.5 text-xs bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-lg text-slate-800 dark:text-neutral-100 focus:outline-hidden font-mono"
                   />
                 </div>
               </div>
@@ -792,11 +792,11 @@ export function TasksKanbanView() {
                 }}
               />
 
-              <div className="flex justify-end gap-3 pt-3 border-t border-neutral-800">
+              <div className="flex justify-end gap-3 pt-3 border-t border-slate-200 dark:border-neutral-800">
                 <button
                   type="button"
                   onClick={() => setIsCreateOpen(false)}
-                  className="px-4 py-2 text-xs text-neutral-400 hover:text-neutral-200"
+                  className="px-4 py-2 text-xs text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200"
                 >
                   {t.common.cancel}
                 </button>
@@ -815,10 +815,10 @@ export function TasksKanbanView() {
 
       {/* Task Details & Subtasks & Acceptance Criteria Drawer / Modal */}
       {selectedTask && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-2xl bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[88vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/70 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-2xl bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[88vh]">
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800 bg-neutral-900/50">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-neutral-800 bg-white/50 dark:bg-neutral-900/50">
               <div className="flex items-center gap-2">
                 <span
                   className={`text-2xs font-semibold px-2 py-0.5 rounded-full border ${
@@ -827,7 +827,7 @@ export function TasksKanbanView() {
                 >
                   {selectedTask.priority.toUpperCase()}
                 </span>
-                <span className="text-xs text-neutral-400">Task #{selectedTask.id.slice(-4)}</span>
+                <span className="text-xs text-slate-500 dark:text-neutral-400">Task #{selectedTask.id.slice(-4)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -849,14 +849,14 @@ export function TasksKanbanView() {
                       );
                     }
                   }}
-                  className="p-1.5 text-neutral-500 hover:text-rose-400 rounded-lg hover:bg-neutral-800 transition-colors"
+                  className="p-1.5 text-slate-500 dark:text-neutral-500 hover:text-rose-400 rounded-lg hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors"
                   title={t.tasks.deleteTask}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setSelectedTask(null)}
-                  className="p-1.5 text-neutral-400 hover:text-neutral-200 rounded-lg hover:bg-neutral-800"
+                  className="p-1.5 text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200 rounded-lg hover:bg-slate-100 dark:hover:bg-neutral-800"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -866,12 +866,12 @@ export function TasksKanbanView() {
             {/* Modal Scrollable Content */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
               <div>
-                <h2 className="text-lg font-bold text-neutral-100">{selectedTask.title}</h2>
-                <p className="text-xs text-neutral-400 mt-1">{selectedTask.description || t.tasks.noDescription}</p>
+                <h2 className="text-lg font-bold text-slate-800 dark:text-neutral-100">{selectedTask.title}</h2>
+                <p className="text-xs text-slate-500 dark:text-neutral-400 mt-1">{selectedTask.description || t.tasks.noDescription}</p>
                 {selectedTask.labels && selectedTask.labels.length > 0 && (
                   <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                     {selectedTask.labels.map((lbl) => (
-                      <span key={lbl} className="text-2xs bg-neutral-800/80 text-neutral-300 px-2 py-0.5 rounded-md border border-neutral-700/50">
+                      <span key={lbl} className="text-2xs bg-slate-100/80 dark:bg-neutral-800/80 text-slate-600 dark:text-neutral-300 px-2 py-0.5 rounded-md border border-slate-300/50 dark:border-neutral-700/50">
                         {lbl}
                       </span>
                     ))}
@@ -880,9 +880,9 @@ export function TasksKanbanView() {
               </div>
 
               {/* Status and Assignee Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-neutral-950 p-3.5 rounded-lg border border-neutral-800 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 dark:bg-neutral-950 p-3.5 rounded-lg border border-slate-200 dark:border-neutral-800 text-xs">
                 <div>
-                  <span className="text-2xs text-neutral-500 uppercase tracking-wider block">{t.tasks.statusLabel}</span>
+                  <span className="text-2xs text-slate-500 dark:text-neutral-500 uppercase tracking-wider block">{t.tasks.statusLabel}</span>
                   <select
                     value={selectedTask.status}
                     onChange={async (e) => {
@@ -892,7 +892,7 @@ export function TasksKanbanView() {
                       });
                       if (updated) setSelectedTask(updated);
                     }}
-                    className="mt-1 bg-transparent text-neutral-200 font-semibold focus:outline-hidden cursor-pointer"
+                    className="mt-1 bg-transparent text-slate-700 dark:text-neutral-200 font-semibold focus:outline-hidden cursor-pointer"
                   >
                     {COLUMNS.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -903,7 +903,7 @@ export function TasksKanbanView() {
                 </div>
 
                 <div>
-                  <span className="text-2xs text-neutral-500 uppercase tracking-wider block">{t.tasks.assigneeLabel}</span>
+                  <span className="text-2xs text-slate-500 dark:text-neutral-500 uppercase tracking-wider block">{t.tasks.assigneeLabel}</span>
                   <div className="mt-1 flex items-center gap-1.5">
                     {selectedTask.assignee?.avatar && (
                       <Avatar
@@ -913,29 +913,29 @@ export function TasksKanbanView() {
                         className="w-4 h-4 rounded-full object-cover"
                       />
                     )}
-                    <span className="text-neutral-200 font-medium">{selectedTask.assignee?.name || t.tasks.unassigned}</span>
+                    <span className="text-slate-700 dark:text-neutral-200 font-medium">{selectedTask.assignee?.name || t.tasks.unassigned}</span>
                   </div>
                 </div>
 
                 <div>
-                  <span className="text-2xs text-neutral-500 uppercase tracking-wider block">{t.tasks.dueDate}</span>
-                  <span className="mt-1 text-neutral-200 block">
+                  <span className="text-2xs text-slate-500 dark:text-neutral-500 uppercase tracking-wider block">{t.tasks.dueDate}</span>
+                  <span className="mt-1 text-slate-700 dark:text-neutral-200 block">
                     {selectedTask.dueDate ? new Date(selectedTask.dueDate).toLocaleDateString() : t.tasks.none}
                   </span>
                 </div>
 
                 <div>
-                  <span className="text-2xs text-neutral-500 uppercase tracking-wider block">{t.tasks.reporterLabel}</span>
-                  <span className="mt-1 text-neutral-200 block">{selectedTask.reporter?.name || t.tasks.teamDefault}</span>
+                  <span className="text-2xs text-slate-500 dark:text-neutral-500 uppercase tracking-wider block">{t.tasks.reporterLabel}</span>
+                  <span className="mt-1 text-slate-700 dark:text-neutral-200 block">{selectedTask.reporter?.name || t.tasks.teamDefault}</span>
                 </div>
               </div>
 
               {/* Sprint, Story Points & Time Tracking Section */}
-              <div className="p-3.5 rounded-xl bg-neutral-950/70 border border-neutral-800/80 space-y-3">
+              <div className="p-3.5 rounded-xl bg-slate-50/70 dark:bg-neutral-950/70 border border-slate-200/80 dark:border-neutral-800/80 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Zap className="w-4 h-4 text-amber-400" />
-                    <h4 className="text-xs font-bold text-neutral-200 uppercase tracking-wider">
+                    <h4 className="text-xs font-bold text-slate-700 dark:text-neutral-200 uppercase tracking-wider">
                       {t.sprints.title} & {t.timeTracking.title}
                     </h4>
                   </div>
@@ -951,8 +951,8 @@ export function TasksKanbanView() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                  <div className="p-2.5 rounded-lg bg-neutral-900 border border-neutral-800">
-                    <span className="text-2xs text-neutral-400 block mb-1">{t.tasks.sprint}</span>
+                  <div className="p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800">
+                    <span className="text-2xs text-slate-500 dark:text-neutral-400 block mb-1">{t.tasks.sprint}</span>
                     <select
                       value={selectedTask.sprintId || ''}
                       onChange={async (e) => {
@@ -965,17 +965,17 @@ export function TasksKanbanView() {
                       }}
                       className="w-full bg-transparent text-amber-300 font-semibold focus:outline-hidden cursor-pointer"
                     >
-                      <option value="" className="bg-neutral-900 text-neutral-300">{t.tasks.backlog}</option>
+                      <option value="" className="bg-white dark:bg-neutral-900 text-slate-600 dark:text-neutral-300">{t.tasks.backlog}</option>
                       {sprints.map((s) => (
-                        <option key={s.id} value={s.id} className="bg-neutral-900 text-neutral-200">
+                        <option key={s.id} value={s.id} className="bg-white dark:bg-neutral-900 text-slate-700 dark:text-neutral-200">
                           {s.name} {s.status === 'active' ? '🔥' : ''}
                         </option>
                       ))}
                     </select>
                   </div>
 
-                  <div className="p-2.5 rounded-lg bg-neutral-900 border border-neutral-800">
-                    <span className="text-2xs text-neutral-400 block mb-1">⚡ {t.tasks.storyPoints}</span>
+                  <div className="p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800">
+                    <span className="text-2xs text-slate-500 dark:text-neutral-400 block mb-1">⚡ {t.tasks.storyPoints}</span>
                     <select
                       value={selectedTask.storyPoints || 3}
                       onChange={async (e) => {
@@ -988,30 +988,30 @@ export function TasksKanbanView() {
                       className="w-full bg-transparent text-violet-300 font-mono font-bold focus:outline-hidden cursor-pointer"
                     >
                       {[1, 2, 3, 5, 8, 13, 21].map((pts) => (
-                        <option key={pts} value={pts} className="bg-neutral-900 text-neutral-200">
+                        <option key={pts} value={pts} className="bg-white dark:bg-neutral-900 text-slate-700 dark:text-neutral-200">
                           {pts} Story Points
                         </option>
                       ))}
                     </select>
                   </div>
 
-                  <div className="p-2.5 rounded-lg bg-neutral-900 border border-neutral-800">
-                    <span className="text-2xs text-neutral-400 block mb-1">⏱ {t.timeTracking.logged} / {t.timeTracking.estimated}</span>
+                  <div className="p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800">
+                    <span className="text-2xs text-slate-500 dark:text-neutral-400 block mb-1">⏱ {t.timeTracking.logged} / {t.timeTracking.estimated}</span>
                     <div className="flex items-center justify-between font-mono">
                       <span className="font-bold text-emerald-400">{selectedTask.loggedHours || 0}h</span>
-                      <span className="text-neutral-500">/</span>
-                      <span className="text-neutral-300">{selectedTask.estimatedHours || 4}h</span>
+                      <span className="text-slate-500 dark:text-neutral-500">/</span>
+                      <span className="text-slate-600 dark:text-neutral-300">{selectedTask.estimatedHours || 4}h</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Acceptance Criteria (DoD) Section */}
-              <div className="p-3.5 rounded-xl bg-neutral-950/70 border border-neutral-800/80">
+              <div className="p-3.5 rounded-xl bg-slate-50/70 dark:bg-neutral-950/70 border border-slate-200/80 dark:border-neutral-800/80">
                 <div className="flex items-center justify-between mb-2.5">
                   <div className="flex items-center gap-1.5">
                     <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                    <h4 className="text-xs font-bold text-neutral-200 uppercase tracking-wider">
+                    <h4 className="text-xs font-bold text-slate-700 dark:text-neutral-200 uppercase tracking-wider">
                       {t.tasks.acceptanceCriteriaTitle} ({(selectedTask.acceptanceCriteria || []).filter((c) => c.satisfied).length}/{(selectedTask.acceptanceCriteria || []).length})
                     </h4>
                   </div>
@@ -1024,16 +1024,16 @@ export function TasksKanbanView() {
                   {(selectedTask.acceptanceCriteria || []).map((crit) => (
                     <div
                       key={crit.id}
-                      className="group flex items-start justify-between gap-2.5 p-2 rounded-lg bg-neutral-900/80 border border-neutral-800 hover:border-neutral-700 transition-colors"
+                      className="group flex items-start justify-between gap-2.5 p-2 rounded-lg bg-white/80 dark:bg-neutral-900/80 border border-slate-200 dark:border-neutral-800 hover:border-slate-300 dark:hover:border-neutral-700 transition-colors"
                     >
                       <div
                         onClick={() => handleToggleCriteria(selectedTask, crit.id)}
                         className="flex items-start gap-2.5 flex-1 cursor-pointer"
                       >
-                        <div className={`mt-0.5 w-4 h-4 rounded flex items-center justify-center border transition-colors ${crit.satisfied ? 'bg-emerald-600 border-emerald-500 text-white' : 'border-neutral-600 bg-neutral-950'}`}>
+                        <div className={`mt-0.5 w-4 h-4 rounded flex items-center justify-center border transition-colors ${crit.satisfied ? 'bg-emerald-600 border-emerald-500 text-white' : 'border-slate-400 dark:border-neutral-600 bg-slate-50 dark:bg-neutral-950'}`}>
                           {crit.satisfied && <Check className="w-3 h-3" />}
                         </div>
-                        <span className={`text-xs ${crit.satisfied ? 'line-through text-neutral-500' : 'text-neutral-200'}`}>
+                        <span className={`text-xs ${crit.satisfied ? 'line-through text-slate-500 dark:text-neutral-500' : 'text-slate-700 dark:text-neutral-200'}`}>
                           {crit.text}
                         </span>
                       </div>
@@ -1041,14 +1041,14 @@ export function TasksKanbanView() {
                       <button
                         type="button"
                         onClick={() => handleDeleteDrawerCriteria(crit.id)}
-                        className="opacity-0 group-hover:opacity-100 p-1 text-neutral-500 hover:text-rose-400 transition-opacity"
+                        className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 dark:text-neutral-500 hover:text-rose-400 transition-opacity"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   ))}
                   {(!selectedTask.acceptanceCriteria || selectedTask.acceptanceCriteria.length === 0) && (
-                    <p className="text-2xs text-neutral-500 italic py-1">
+                    <p className="text-2xs text-slate-500 dark:text-neutral-500 italic py-1">
                       {t.tasks.noCriteriaYet}
                     </p>
                   )}
@@ -1060,7 +1060,7 @@ export function TasksKanbanView() {
                     value={newDrawerCriteria}
                     onChange={(e) => setNewDrawerCriteria(e.target.value)}
                     placeholder={t.tasks.addCriterionPlaceholder}
-                    className="flex-1 px-2.5 py-1.5 text-xs bg-neutral-900 border border-neutral-800 rounded-lg text-neutral-200 placeholder-neutral-500 focus:outline-hidden focus:border-emerald-500"
+                    className="flex-1 px-2.5 py-1.5 text-xs bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-lg text-slate-700 dark:text-neutral-200 placeholder-neutral-500 focus:outline-hidden focus:border-emerald-500"
                   />
                   <button
                     type="submit"
@@ -1073,11 +1073,11 @@ export function TasksKanbanView() {
               </div>
 
               {/* Subtasks Checklist */}
-              <div className="p-3.5 rounded-xl bg-neutral-950/70 border border-neutral-800/80">
+              <div className="p-3.5 rounded-xl bg-slate-50/70 dark:bg-neutral-950/70 border border-slate-200/80 dark:border-neutral-800/80">
                 <div className="flex items-center justify-between mb-2.5">
                   <div className="flex items-center gap-1.5">
                     <CheckSquare className="w-4 h-4 text-indigo-400" />
-                    <h4 className="text-xs font-bold text-neutral-200 uppercase tracking-wider">
+                    <h4 className="text-xs font-bold text-slate-700 dark:text-neutral-200 uppercase tracking-wider">
                       {t.tasks.acceptanceSubtasks} ({(selectedTask.subtasks || []).filter((s) => s.completed).length}/{(selectedTask.subtasks || []).length})
                     </h4>
                   </div>
@@ -1087,7 +1087,7 @@ export function TasksKanbanView() {
                   {(selectedTask.subtasks || []).map((sub) => (
                     <div
                       key={sub.id}
-                      className="group flex items-start justify-between gap-2.5 p-2 rounded-lg bg-neutral-900/80 border border-neutral-800 hover:border-neutral-700 transition-colors"
+                      className="group flex items-start justify-between gap-2.5 p-2 rounded-lg bg-white/80 dark:bg-neutral-900/80 border border-slate-200 dark:border-neutral-800 hover:border-slate-300 dark:hover:border-neutral-700 transition-colors"
                     >
                       <div
                         onClick={() => handleToggleSubtask(selectedTask, sub.id)}
@@ -1097,11 +1097,11 @@ export function TasksKanbanView() {
                           type="checkbox"
                           checked={sub.completed}
                           onChange={() => {}}
-                          className="mt-0.5 rounded border-neutral-700 text-indigo-600 focus:ring-0 cursor-pointer"
+                          className="mt-0.5 rounded border-slate-300 dark:border-neutral-700 text-indigo-600 focus:ring-0 cursor-pointer"
                         />
                         <span
                           className={`text-xs ${
-                            sub.completed ? 'line-through text-neutral-500' : 'text-neutral-200'
+                            sub.completed ? 'line-through text-slate-500 dark:text-neutral-500' : 'text-slate-700 dark:text-neutral-200'
                           }`}
                         >
                           {sub.title}
@@ -1111,14 +1111,14 @@ export function TasksKanbanView() {
                       <button
                         type="button"
                         onClick={() => handleDeleteDrawerSubtask(sub.id)}
-                        className="opacity-0 group-hover:opacity-100 p-1 text-neutral-500 hover:text-rose-400 transition-opacity"
+                        className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 dark:text-neutral-500 hover:text-rose-400 transition-opacity"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   ))}
                   {(!selectedTask.subtasks || selectedTask.subtasks.length === 0) && (
-                    <p className="text-2xs text-neutral-500 italic py-1">
+                    <p className="text-2xs text-slate-500 dark:text-neutral-500 italic py-1">
                       {t.tasks.noSubtasksYet}
                     </p>
                   )}
@@ -1130,7 +1130,7 @@ export function TasksKanbanView() {
                     value={newDrawerSubtask}
                     onChange={(e) => setNewDrawerSubtask(e.target.value)}
                     placeholder={t.tasks.addSubtaskPlaceholder}
-                    className="flex-1 px-2.5 py-1.5 text-xs bg-neutral-900 border border-neutral-800 rounded-lg text-neutral-200 placeholder-neutral-500 focus:outline-hidden focus:border-indigo-500"
+                    className="flex-1 px-2.5 py-1.5 text-xs bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-lg text-slate-700 dark:text-neutral-200 placeholder-neutral-500 focus:outline-hidden focus:border-indigo-500"
                   />
                   <button
                     type="submit"
@@ -1144,7 +1144,7 @@ export function TasksKanbanView() {
 
               {/* Comments Thread */}
               <div>
-                <h4 className="text-xs font-bold text-neutral-300 uppercase tracking-wider mb-3">
+                <h4 className="text-xs font-bold text-slate-600 dark:text-neutral-300 uppercase tracking-wider mb-3">
                   {t.tasks.discussionThread} ({comments.filter((c) => c.targetId === selectedTask.id).length})
                 </h4>
 
@@ -1152,7 +1152,7 @@ export function TasksKanbanView() {
                   {comments
                     .filter((c) => c.targetId === selectedTask.id)
                     .map((cmt) => (
-                      <div key={cmt.id} className="p-3 rounded-lg bg-neutral-950 border border-neutral-800 text-xs">
+                      <div key={cmt.id} className="p-3 rounded-lg bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-neutral-800 text-xs">
                         <div className="flex items-center justify-between mb-1.5">
                           <div className="flex items-center gap-2">
                             <Avatar
@@ -1161,13 +1161,13 @@ export function TasksKanbanView() {
                               color={cmt.author?.color}
                               className="w-5 h-5 rounded-full object-cover"
                             />
-                            <span className="font-semibold text-neutral-200">{cmt.author?.name}</span>
+                            <span className="font-semibold text-slate-700 dark:text-neutral-200">{cmt.author?.name}</span>
                           </div>
-                          <span className="text-2xs text-neutral-500">
+                          <span className="text-2xs text-slate-500 dark:text-neutral-500">
                             {new Date(cmt.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
-                        <p className="text-neutral-300 pl-7">{cmt.content}</p>
+                        <p className="text-slate-600 dark:text-neutral-300 pl-7">{cmt.content}</p>
                       </div>
                     ))}
                 </div>
@@ -1178,7 +1178,7 @@ export function TasksKanbanView() {
                     value={newCommentText}
                     onChange={(e) => setNewCommentText(e.target.value)}
                     placeholder={t.tasks.addComment}
-                    className="flex-1 px-3 py-2 text-xs bg-neutral-950 border border-neutral-800 rounded-lg text-neutral-200 placeholder-neutral-500 focus:outline-hidden focus:border-indigo-500"
+                    className="flex-1 px-3 py-2 text-xs bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-neutral-800 rounded-lg text-slate-700 dark:text-neutral-200 placeholder-neutral-500 focus:outline-hidden focus:border-indigo-500"
                   />
                   <button
                     type="submit"

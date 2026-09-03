@@ -203,13 +203,13 @@ export function NotificationsPopover() {
       <button
         id="btn-notifications-bell"
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-neutral-400 hover:text-neutral-200 transition-colors"
+        className="relative p-2 rounded-xl bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 hover:border-slate-300 dark:hover:border-neutral-700 text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200 transition-colors"
         title={t.notifications.title}
         aria-label={t.notifications.title}
       >
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white ring-2 ring-neutral-950 animate-pulse">
+          <span className="absolute -top-1 -right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white ring-2 ring-slate-50 dark:ring-neutral-950 animate-pulse">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -217,11 +217,11 @@ export function NotificationsPopover() {
 
       {/* Popover Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-2xl bg-neutral-900/95 border border-neutral-800 shadow-2xl backdrop-blur-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-2xl bg-white/95 dark:bg-neutral-900/95 border border-slate-200 dark:border-neutral-800 shadow-2xl backdrop-blur-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
           {/* Header */}
-          <div className="p-3.5 border-b border-neutral-800 flex items-center justify-between">
+          <div className="p-3.5 border-b border-slate-200 dark:border-neutral-800 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-neutral-200 uppercase tracking-wider">
+              <span className="text-xs font-bold text-slate-700 dark:text-neutral-200 uppercase tracking-wider">
                 {t.notifications.title}
               </span>
               {unreadCount > 0 && (
@@ -244,7 +244,7 @@ export function NotificationsPopover() {
               )}
               <button
                 onClick={handleSimulateAlert}
-                className="flex items-center gap-1 px-2 py-1 rounded-lg text-2xs text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 transition-colors"
+                className="flex items-center gap-1 px-2 py-1 rounded-lg text-2xs text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200 hover:bg-slate-100 dark:hover:bg-neutral-800 transition-colors"
                 title={t.notifications.simulateBtn}
               >
                 <PlusCircle className="w-3 h-3 text-indigo-400" />
@@ -254,7 +254,7 @@ export function NotificationsPopover() {
           </div>
 
           {/* Filter Tabs */}
-          <div className="flex items-center gap-1 px-3 pt-2.5 pb-2 border-b border-neutral-800/80 bg-neutral-950/40 text-2xs overflow-x-auto custom-scrollbar">
+          <div className="flex items-center gap-1 px-3 pt-2.5 pb-2 border-b border-slate-200/80 dark:border-neutral-800/80 bg-slate-50/40 dark:bg-neutral-950/40 text-2xs overflow-x-auto custom-scrollbar">
             {(['all', 'unread', 'deadlines', 'mentions'] as const).map((tabKey) => (
               <button
                 key={tabKey}
@@ -262,7 +262,7 @@ export function NotificationsPopover() {
                 className={`px-2.5 py-1 rounded-lg font-medium whitespace-nowrap transition-colors ${
                   filter === tabKey
                     ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 font-semibold'
-                    : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/60'
+                    : 'text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200 hover:bg-slate-100/60 dark:hover:bg-neutral-800/60'
                 }`}
               >
                 {t.notifications[tabKey]}
@@ -271,12 +271,12 @@ export function NotificationsPopover() {
           </div>
 
           {/* Notifications List */}
-          <div className="max-h-80 overflow-y-auto divide-y divide-neutral-800/60 custom-scrollbar">
+          <div className="max-h-80 overflow-y-auto divide-y divide-slate-200/60 dark:divide-neutral-800/60 custom-scrollbar">
             {filteredNotifications.length === 0 ? (
               <div className="p-8 text-center">
-                <CheckCheck className="w-8 h-8 text-neutral-600 mx-auto mb-2" />
-                <p className="text-xs font-semibold text-neutral-300">{t.notifications.empty}</p>
-                <p className="text-3xs text-neutral-500 mt-1">{t.notifications.emptySub}</p>
+                <CheckCheck className="w-8 h-8 text-slate-600 dark:text-neutral-300 mx-auto mb-2" />
+                <p className="text-xs font-semibold text-slate-600 dark:text-neutral-300">{t.notifications.empty}</p>
+                <p className="text-3xs text-slate-500 dark:text-neutral-500 mt-1">{t.notifications.emptySub}</p>
               </div>
             ) : (
               filteredNotifications.map((n) => {
@@ -289,7 +289,7 @@ export function NotificationsPopover() {
                     className={`p-3 text-left transition-colors cursor-pointer group flex items-start justify-between gap-3 ${
                       !n.read
                         ? 'bg-indigo-950/20 hover:bg-indigo-950/40'
-                        : 'hover:bg-neutral-850/60'
+                        : 'hover:bg-slate-100 dark:hover:bg-neutral-850/60'
                     }`}
                   >
                     <div className="flex items-start gap-2.5 min-w-0 flex-1">
@@ -321,16 +321,16 @@ export function NotificationsPopover() {
                         <div className="flex items-center justify-between gap-1">
                           <h4
                             className={`text-xs font-semibold truncate ${
-                              !n.read ? 'text-neutral-100' : 'text-neutral-300'
+                              !n.read ? 'text-slate-800 dark:text-neutral-100' : 'text-slate-600 dark:text-neutral-300'
                             }`}
                           >
                             {n.title}
                           </h4>
-                          <span className="text-3xs text-neutral-500 whitespace-nowrap">
+                          <span className="text-3xs text-slate-500 dark:text-neutral-500 whitespace-nowrap">
                             {formatTimeAgo(n.createdAt)}
                           </span>
                         </div>
-                        <p className="text-2xs text-neutral-400 mt-0.5 line-clamp-2 leading-relaxed">
+                        <p className="text-2xs text-slate-500 dark:text-neutral-400 mt-0.5 line-clamp-2 leading-relaxed">
                           {n.message}
                         </p>
                       </div>
@@ -342,7 +342,7 @@ export function NotificationsPopover() {
                       )}
                       <button
                         onClick={(e) => handleDismiss(e, n.id)}
-                        className="p-1 rounded text-neutral-600 hover:text-neutral-300 hover:bg-neutral-800 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="p-1 rounded text-slate-600 dark:text-neutral-300 hover:text-slate-600 dark:hover:text-neutral-300 hover:bg-slate-100 dark:hover:bg-neutral-800 opacity-0 group-hover:opacity-100 transition-opacity"
                         title="Удалить"
                       >
                         <X className="w-3 h-3" />
@@ -355,8 +355,8 @@ export function NotificationsPopover() {
           </div>
 
           {/* Footer quick action */}
-          <div className="p-2 border-t border-neutral-800 bg-neutral-950/60 flex items-center justify-between text-2xs text-neutral-400">
-            <span className="text-3xs text-neutral-500 font-mono">
+          <div className="p-2 border-t border-slate-200 dark:border-neutral-800 bg-slate-50/60 dark:bg-neutral-950/60 flex items-center justify-between text-2xs text-slate-500 dark:text-neutral-400">
+            <span className="text-3xs text-slate-500 dark:text-neutral-500 font-mono">
               {notifications.length} событий
             </span>
             <button

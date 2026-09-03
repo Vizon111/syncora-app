@@ -128,25 +128,25 @@ export function AiCopilotView() {
   return (
     <div className="flex-1 flex flex-col h-[calc(100vh-64px)] max-w-5xl mx-auto w-full p-6 animate-in fade-in duration-200">
       {/* Top Banner: Tenant Knowledge Grounding Info */}
-      <div className="flex items-center justify-between pb-4 mb-4 border-b border-neutral-800">
+      <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-200 dark:border-neutral-800">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-neutral-100 flex items-center gap-2">
+            <h2 className="text-base font-bold text-slate-800 dark:text-neutral-100 flex items-center gap-2">
               {t.ai.title}
               <span className="text-2xs font-normal px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                 {t.ai.tenantIsolated} {currentWorkspace.name}
               </span>
             </h2>
-            <p className="text-xs text-neutral-400">
+            <p className="text-xs text-slate-500 dark:text-neutral-400">
               {t.ai.subtitle}
             </p>
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-2 text-2xs text-neutral-400 bg-neutral-900 border border-neutral-800 px-3 py-1.5 rounded-lg">
+        <div className="hidden sm:flex items-center gap-2 text-2xs text-slate-500 dark:text-neutral-400 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 px-3 py-1.5 rounded-lg">
           <ShieldCheck className="w-4 h-4 text-emerald-400" />
           <span>{t.ai.antiHallucination}</span>
         </div>
@@ -170,7 +170,7 @@ export function AiCopilotView() {
               <div
                 className={`max-w-2xl rounded-2xl p-4 text-xs leading-relaxed ${
                   isAi
-                    ? 'bg-neutral-900 border border-neutral-800 text-neutral-200 shadow-md'
+                    ? 'bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 text-slate-700 dark:text-neutral-200 shadow-md'
                     : 'bg-indigo-600 text-white rounded-tr-xs shadow-lg shadow-indigo-600/20'
                 }`}
               >
@@ -180,8 +180,8 @@ export function AiCopilotView() {
 
                 {/* Citations Box */}
                 {msg.citations && msg.citations.length > 0 && (
-                  <div className="mt-3.5 pt-3 border-t border-neutral-800/80 space-y-2">
-                    <span className="text-2xs font-semibold text-neutral-400 uppercase tracking-wider block">
+                  <div className="mt-3.5 pt-3 border-t border-slate-200/80 dark:border-neutral-800/80 space-y-2">
+                    <span className="text-2xs font-semibold text-slate-500 dark:text-neutral-400 uppercase tracking-wider block">
                       {t.ai.groundedSources} ({msg.citations.length}):
                     </span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -189,19 +189,19 @@ export function AiCopilotView() {
                         <div
                           key={cit.id}
                           onClick={() => handleCitationClick(cit)}
-                          className="flex items-start gap-2 p-2 rounded-lg bg-neutral-950/80 border border-neutral-800 hover:border-indigo-500/40 cursor-pointer transition-colors group"
+                          className="flex items-start gap-2 p-2 rounded-lg bg-slate-50/80 dark:bg-neutral-950/80 border border-slate-200 dark:border-neutral-800 hover:border-indigo-500/40 cursor-pointer transition-colors group"
                         >
-                          <div className="mt-0.5 text-neutral-400 group-hover:text-indigo-400">
+                          <div className="mt-0.5 text-slate-500 dark:text-neutral-400 group-hover:text-indigo-400">
                             {cit.sourceType === 'document' && <FileText className="w-3.5 h-3.5" />}
                             {cit.sourceType === 'task' && <CheckSquare className="w-3.5 h-3.5" />}
                             {cit.sourceType === 'project' && <Folder className="w-3.5 h-3.5" />}
                             {cit.sourceType === 'file' && <Paperclip className="w-3.5 h-3.5" />}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <span className="font-semibold text-neutral-200 block truncate group-hover:text-indigo-300">
+                            <span className="font-semibold text-slate-700 dark:text-neutral-200 block truncate group-hover:text-indigo-300">
                               {cit.sourceTitle}
                             </span>
-                            <span className="text-3xs text-neutral-500 line-clamp-1 italic">{cit.snippet}</span>
+                            <span className="text-3xs text-slate-500 dark:text-neutral-500 line-clamp-1 italic">{cit.snippet}</span>
                           </div>
                         </div>
                       ))}
@@ -224,7 +224,7 @@ export function AiCopilotView() {
                         {t.ai.reviewApply}
                       </button>
                     </div>
-                    <p className="text-2xs text-neutral-400 mt-1">{msg.actionProposal.description}</p>
+                    <p className="text-2xs text-slate-500 dark:text-neutral-400 mt-1">{msg.actionProposal.description}</p>
                   </div>
                 )}
               </div>
@@ -234,7 +234,7 @@ export function AiCopilotView() {
                   src={currentUser.avatar}
                   name={currentUser.name}
                   color={currentUser.color}
-                  className="w-8 h-8 rounded-full object-cover border border-neutral-700 shrink-0 mt-0.5"
+                  className="w-8 h-8 rounded-full object-cover border border-slate-300 dark:border-neutral-700 shrink-0 mt-0.5"
                 />
               )}
             </div>
@@ -242,7 +242,7 @@ export function AiCopilotView() {
         })}
 
         {isLoading && (
-          <div className="flex items-center gap-3 text-xs text-neutral-400 pl-2">
+          <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-neutral-400 pl-2">
             <div className="w-6 h-6 rounded-full bg-indigo-600/20 flex items-center justify-center text-indigo-400 animate-pulse">
               <Sparkles className="w-3.5 h-3.5" />
             </div>
@@ -256,7 +256,7 @@ export function AiCopilotView() {
       {/* Suggested Queries Chips */}
       {messages.length < 3 && (
         <div className="mb-3">
-          <span className="text-2xs font-semibold text-neutral-500 uppercase tracking-wider block mb-2">
+          <span className="text-2xs font-semibold text-slate-500 dark:text-neutral-500 uppercase tracking-wider block mb-2">
             {t.ai.suggestedPrompts}
           </span>
           <div className="flex flex-wrap gap-2">
@@ -264,7 +264,7 @@ export function AiCopilotView() {
               <button
                 key={i}
                 onClick={() => handleSendPrompt(sq)}
-                className="px-3 py-1.5 text-xs text-neutral-300 bg-neutral-900 border border-neutral-800 hover:border-indigo-500/40 hover:bg-neutral-850 rounded-lg text-left transition-colors"
+                className="px-3 py-1.5 text-xs text-slate-600 dark:text-neutral-300 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 hover:border-indigo-500/40 hover:bg-slate-100 dark:hover:bg-neutral-850 rounded-lg text-left transition-colors"
               >
                 {sq}
               </button>
@@ -279,7 +279,7 @@ export function AiCopilotView() {
           e.preventDefault();
           handleSendPrompt();
         }}
-        className="relative bg-neutral-900 border border-neutral-800 rounded-xl p-2 focus-within:border-indigo-500/80 transition-colors shadow-lg"
+        className="relative bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-xl p-2 focus-within:border-indigo-500/80 transition-colors shadow-lg"
       >
         <textarea
           rows={2}
@@ -292,11 +292,11 @@ export function AiCopilotView() {
             }
           }}
           placeholder={t.ai.inputPlaceholder}
-          className="w-full bg-transparent text-xs text-neutral-100 placeholder-neutral-500 px-3 py-1.5 resize-none focus:outline-hidden custom-scrollbar"
+          className="w-full bg-transparent text-xs text-slate-800 dark:text-neutral-100 placeholder-neutral-500 px-3 py-1.5 resize-none focus:outline-hidden custom-scrollbar"
         />
 
-        <div className="flex items-center justify-between px-2 pt-1 border-t border-neutral-800/60">
-          <div className="flex items-center gap-2 text-2xs text-neutral-500">
+        <div className="flex items-center justify-between px-2 pt-1 border-t border-slate-200/60 dark:border-neutral-800/60">
+          <div className="flex items-center gap-2 text-2xs text-slate-500 dark:text-neutral-500">
             <span>{t.ai.poweredBy}</span>
           </div>
 

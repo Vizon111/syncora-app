@@ -251,13 +251,13 @@ export function SearchModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/70 backdrop-blur-xs animate-in fade-in">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/40 dark:bg-black/70 backdrop-blur-xs animate-in fade-in">
       <div
         id="flowspace-search-modal"
-        className="w-full max-w-2xl bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[82vh] animate-in fade-in zoom-in-95 duration-150"
+        className="w-full max-w-2xl bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[82vh] animate-in fade-in zoom-in-95 duration-150"
       >
         {/* Header Search Input */}
-        <div className="flex items-center px-4 py-3.5 border-b border-neutral-800 gap-3 bg-neutral-950/60">
+        <div className="flex items-center px-4 py-3.5 border-b border-slate-200 dark:border-neutral-800 gap-3 bg-slate-50/60 dark:bg-neutral-950/60">
           <Search className="w-5 h-5 text-indigo-400 shrink-0" />
           <input
             ref={inputRef}
@@ -265,17 +265,17 @@ export function SearchModal({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t.common.searchPlaceholder}
-            className="w-full bg-transparent text-neutral-100 placeholder-neutral-500 text-sm focus:outline-hidden font-medium"
+            className="w-full bg-transparent text-slate-800 dark:text-neutral-100 placeholder-neutral-500 text-sm focus:outline-hidden font-medium"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="p-1 text-neutral-400 hover:text-neutral-200 rounded-md transition-colors"
+              className="p-1 text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200 rounded-md transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
           )}
-          <kbd className="hidden sm:inline-flex items-center px-2 py-0.5 text-2xs font-mono text-neutral-400 bg-neutral-800 border border-neutral-700 rounded shadow-xs">
+          <kbd className="hidden sm:inline-flex items-center px-2 py-0.5 text-2xs font-mono text-slate-500 dark:text-neutral-400 bg-slate-100 dark:bg-neutral-800 border border-slate-300 dark:border-neutral-700 rounded shadow-xs">
             ESC
           </kbd>
         </div>
@@ -283,13 +283,13 @@ export function SearchModal({
         {/* Search Results / Commands List */}
         <div className="flex-1 overflow-y-auto p-3 space-y-4 custom-scrollbar">
           {isSearching && (
-            <div className="py-8 text-center text-xs text-neutral-500">{t.common.loading}</div>
+            <div className="py-8 text-center text-xs text-slate-500 dark:text-neutral-500">{t.common.loading}</div>
           )}
 
           {/* Quick Commands list */}
           {filteredCommands.length > 0 && (!query || query.length < 3) && (
             <div className="space-y-1.5">
-              <span className="text-2xs font-bold uppercase tracking-wider text-neutral-500 px-2 block">
+              <span className="text-2xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-500 px-2 block">
                 {t.commands.quickCommands}
               </span>
               <div className="grid grid-cols-1 gap-1">
@@ -303,21 +303,21 @@ export function SearchModal({
                       onMouseEnter={() => setSelectedIndex(idx)}
                       className={`flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-indigo-950/40 border-indigo-500/40 text-neutral-100'
-                          : 'border-neutral-800/60 bg-neutral-950/50 hover:bg-neutral-800/60 hover:border-neutral-700 text-neutral-300'
+                          ? 'bg-indigo-950/40 border-indigo-500/40 text-slate-800 dark:text-neutral-100'
+                          : 'border-slate-200/60 dark:border-neutral-800/60 bg-slate-50/50 dark:bg-neutral-950/50 hover:bg-slate-100/60 dark:hover:bg-neutral-800/60 hover:border-slate-300 dark:hover:border-neutral-700 text-slate-600 dark:text-neutral-300'
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`p-1.5 rounded-lg bg-neutral-800 ${cmd.color}`}>
+                        <div className={`p-1.5 rounded-lg bg-slate-100 dark:bg-neutral-800 ${cmd.color}`}>
                           <Icon className="w-4 h-4" />
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-neutral-200">{cmd.title}</p>
-                          <p className="text-2xs text-neutral-400">{cmd.subtitle}</p>
+                          <p className="text-xs font-semibold text-slate-700 dark:text-neutral-200">{cmd.title}</p>
+                          <p className="text-2xs text-slate-500 dark:text-neutral-400">{cmd.subtitle}</p>
                         </div>
                       </div>
 
-                      <kbd className="min-w-[20px] h-5 px-1.5 flex items-center justify-center text-2xs font-mono font-semibold text-neutral-300 bg-neutral-800 border border-neutral-700 rounded shadow-xs">
+                      <kbd className="min-w-[20px] h-5 px-1.5 flex items-center justify-center text-2xs font-mono font-semibold text-slate-600 dark:text-neutral-300 bg-slate-100 dark:bg-neutral-800 border border-slate-300 dark:border-neutral-700 rounded shadow-xs">
                         {cmd.badge}
                       </kbd>
                     </div>
@@ -329,10 +329,10 @@ export function SearchModal({
 
           {!isSearching && query && results.length === 0 && filteredCommands.length === 0 && (
             <div className="py-12 text-center">
-              <p className="text-sm font-medium text-neutral-300">
+              <p className="text-sm font-medium text-slate-600 dark:text-neutral-300">
                 {t.common.noResults} &ldquo;{query}&rdquo;
               </p>
-              <p className="text-xs text-neutral-500 mt-1">
+              <p className="text-xs text-slate-500 dark:text-neutral-500 mt-1">
                 {language === 'ru'
                   ? 'Попробуйте ключевые слова, название задачи или файла.'
                   : 'Try searching by keyword, document name, or task title.'}
@@ -342,7 +342,7 @@ export function SearchModal({
 
           {results.length > 0 && (
             <div className="space-y-1.5">
-              <span className="text-2xs font-bold uppercase tracking-wider text-neutral-500 px-2 block">
+              <span className="text-2xs font-bold uppercase tracking-wider text-slate-500 dark:text-neutral-500 px-2 block">
                 {language === 'ru' ? 'Результаты поиска' : 'Search Results'} ({results.length})
               </span>
               <div className="space-y-1">
@@ -356,10 +356,10 @@ export function SearchModal({
                       className={`group flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all border ${
                         isSelected
                           ? 'bg-indigo-950/40 border-indigo-500/40 shadow-xs'
-                          : 'border-transparent hover:border-neutral-800 hover:bg-neutral-800/50'
+                          : 'border-transparent hover:border-slate-200 dark:hover:border-neutral-800 hover:bg-slate-100/50 dark:hover:bg-neutral-800/50'
                       }`}
                     >
-                      <div className="mt-0.5 p-2 rounded-lg bg-neutral-800 text-neutral-300 group-hover:text-indigo-400 transition-colors">
+                      <div className="mt-0.5 p-2 rounded-lg bg-slate-100 dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 group-hover:text-indigo-400 transition-colors">
                         {item.type === 'document' && <FileText className="w-4 h-4 text-indigo-400" />}
                         {item.type === 'task' && <CheckSquare className="w-4 h-4 text-emerald-400" />}
                         {item.type === 'project' && <Folder className="w-4 h-4 text-amber-400" />}
@@ -368,16 +368,16 @@ export function SearchModal({
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <h4 className="text-xs font-semibold text-neutral-100 truncate">
+                          <h4 className="text-xs font-semibold text-slate-800 dark:text-neutral-100 truncate">
                             {item.title}
                           </h4>
-                          <span className="text-2xs uppercase tracking-wider text-neutral-400 px-1.5 py-0.5 rounded bg-neutral-800 font-mono">
+                          <span className="text-2xs uppercase tracking-wider text-slate-500 dark:text-neutral-400 px-1.5 py-0.5 rounded bg-slate-100 dark:bg-neutral-800 font-mono">
                             {item.type}
                           </span>
                         </div>
-                        <p className="text-2xs text-neutral-400 mt-0.5 truncate">{item.subtitle}</p>
+                        <p className="text-2xs text-slate-500 dark:text-neutral-400 mt-0.5 truncate">{item.subtitle}</p>
                         {item.snippet && (
-                          <p className="text-2xs text-neutral-500 mt-1 line-clamp-1 italic font-mono bg-neutral-950/80 p-1.5 rounded-md border border-neutral-800/60">
+                          <p className="text-2xs text-slate-500 dark:text-neutral-500 mt-1 line-clamp-1 italic font-mono bg-slate-50/80 dark:bg-neutral-950/80 p-1.5 rounded-md border border-slate-200/60 dark:border-neutral-800/60">
                             {item.snippet}
                           </p>
                         )}
@@ -398,18 +398,18 @@ export function SearchModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-4 py-2.5 bg-neutral-950 border-t border-neutral-800 text-2xs text-neutral-500">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50 dark:bg-neutral-950 border-t border-slate-200 dark:border-neutral-800 text-2xs text-slate-500 dark:text-neutral-500">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1">
-              <kbd className="px-1 py-0.5 rounded bg-neutral-800 font-mono text-neutral-400">↑↓</kbd>
+              <kbd className="px-1 py-0.5 rounded bg-slate-100 dark:bg-neutral-800 font-mono text-slate-500 dark:text-neutral-400">↑↓</kbd>
               <span>{language === 'ru' ? 'навигация' : 'navigate'}</span>
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1 py-0.5 rounded bg-neutral-800 font-mono text-neutral-400">↵</kbd>
+              <kbd className="px-1 py-0.5 rounded bg-slate-100 dark:bg-neutral-800 font-mono text-slate-500 dark:text-neutral-400">↵</kbd>
               <span>{language === 'ru' ? 'выбрать' : 'select'}</span>
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1 py-0.5 rounded bg-neutral-800 font-mono text-neutral-400">[?]</kbd>
+              <kbd className="px-1 py-0.5 rounded bg-slate-100 dark:bg-neutral-800 font-mono text-slate-500 dark:text-neutral-400">[?]</kbd>
               <span>{language === 'ru' ? 'все клавиши' : 'all shortcuts'}</span>
             </span>
           </div>
