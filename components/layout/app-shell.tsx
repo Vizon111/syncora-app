@@ -239,13 +239,13 @@ export function AppShell() {
           <button
             onClick={() => setActiveView('settings')}
             title={t.common.settings}
-            className={`w-full flex items-center gap-2 p-2 rounded-lg text-2xs transition-colors ${
+            className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-2xs transition-colors ${
               activeView === 'settings'
                 ? 'bg-slate-200/80 text-slate-900 font-semibold border border-slate-300/60 dark:bg-neutral-800/90 dark:text-neutral-100 dark:border-neutral-700/60'
                 : 'bg-white/60 border border-slate-200/80 hover:bg-slate-100 hover:border-slate-300 dark:bg-neutral-900/60 dark:border-neutral-800/80 dark:hover:bg-neutral-800 dark:hover:border-neutral-700 text-slate-500 hover:text-slate-800 dark:text-neutral-400 dark:hover:text-neutral-200'
             }`}
           >
-            <Settings className="w-3.5 h-3.5 shrink-0" />
+            <Settings className="w-4 h-4 shrink-0" />
             {isSidebarExpanded && <span className="whitespace-nowrap">{t.common.settings}</span>}
           </button>
 
@@ -273,7 +273,7 @@ export function AppShell() {
           <button
             onClick={() => setActiveView('profile')}
             title={currentUser.name}
-            className={`w-full flex items-center gap-2.5 p-2 rounded-lg transition-colors border ${
+            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors border ${
               activeView === 'profile'
                 ? 'bg-slate-200/80 border-slate-300/60 dark:bg-neutral-800/90 dark:border-neutral-700/60'
                 : 'border-transparent hover:bg-slate-100 dark:hover:bg-neutral-900'
@@ -345,7 +345,7 @@ export function AppShell() {
         </header>
 
         {/* Dynamic View Component */}
-        <main className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
+        <main className="flex-1 overflow-y-auto custom-scrollbar flex flex-col pb-8">
           {activeView === 'overview' && <OverviewView />}
           {activeView === 'my-work' && <MyWorkView />}
           {activeView === 'tasks' && <TasksKanbanView />}
