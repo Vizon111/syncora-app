@@ -112,7 +112,7 @@ export function ProfileView() {
                 <button
                   onClick={handleSavePhoto}
                   disabled={!photoUrl.trim() || isSavingPhoto}
-                  className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-200 disabled:text-slate-400 dark:disabled:bg-neutral-800 dark:disabled:text-neutral-600 disabled:cursor-not-allowed transition-colors"
                 >
                   {isSavingPhoto && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   {t.profile.save}
@@ -141,7 +141,7 @@ export function ProfileView() {
             <button
               onClick={handleSaveName}
               disabled={!name.trim() || name.trim() === currentUser.name || isSavingName}
-              className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-200 disabled:text-slate-400 dark:disabled:bg-neutral-800 dark:disabled:text-neutral-600 disabled:cursor-not-allowed transition-colors"
             >
               {isSavingName && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               {t.profile.save}
@@ -196,7 +196,7 @@ export function ProfileView() {
           <button
             onClick={handleUpdatePassword}
             disabled={!newPassword || !confirmPassword || isUpdatingPassword}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 dark:text-neutral-300 dark:border-neutral-800 dark:hover:bg-neutral-800 dark:hover:border-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-200 disabled:text-slate-400 dark:disabled:bg-neutral-800 dark:disabled:text-neutral-600 disabled:cursor-not-allowed transition-colors"
           >
             {isUpdatingPassword && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
             {t.profile.updatePassword}

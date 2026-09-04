@@ -104,13 +104,13 @@ export function SettingsView({ onOpenShortcuts }: SettingsViewProps) {
         <div className="p-4 rounded-xl border border-slate-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
           <button
             onClick={onOpenShortcuts}
-            className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-600 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 dark:text-neutral-300 dark:border-neutral-800 dark:hover:bg-neutral-800 dark:hover:border-neutral-700 transition-colors"
+            className="w-full flex items-center justify-between px-3.5 py-3 rounded-lg text-xs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 hover:border-indigo-300 dark:text-indigo-300 dark:bg-indigo-600/15 dark:border-indigo-500/30 dark:hover:bg-indigo-600/25 transition-colors"
           >
             <div className="flex items-center gap-2">
               <Keyboard className="w-3.5 h-3.5" />
               {t.settings.openShortcuts}
             </div>
-            <kbd className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 dark:bg-neutral-800 dark:text-neutral-300 font-mono text-3xs border border-slate-300 dark:border-neutral-700">
+            <kbd className="px-1.5 py-0.5 rounded bg-white text-indigo-600 dark:bg-neutral-950 dark:text-indigo-300 font-mono text-3xs border border-indigo-200 dark:border-indigo-800/60">
               ?
             </kbd>
           </button>
