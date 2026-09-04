@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Loader2, UserPlus, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import GoogleAuthButton from '@/components/auth/google-auth-button';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -77,10 +78,16 @@ export default function SignupPage() {
           <p className="text-sm text-slate-500 dark:text-neutral-500 mt-1">Create your account</p>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-xl p-6 space-y-4 shadow-2xl"
-        >
+        <div className="bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-xl p-6 shadow-2xl space-y-4">
+          <GoogleAuthButton />
+
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-slate-200 dark:bg-neutral-800" />
+            <span className="text-xs text-slate-400 dark:text-neutral-600">or</span>
+            <div className="h-px flex-1 bg-slate-200 dark:bg-neutral-800" />
+          </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div className="flex items-start gap-2 bg-red-950/40 border border-red-900/50 rounded-lg px-3 py-2.5 text-sm text-red-300">
               <AlertCircle size={16} className="mt-0.5 shrink-0" />
@@ -146,6 +153,7 @@ export default function SignupPage() {
             {isSubmitting ? 'Creating account…' : 'Create account'}
           </button>
         </form>
+        </div>
 
         <p className="text-center text-sm text-slate-500 dark:text-neutral-500 mt-5">
           Already have an account?{' '}
