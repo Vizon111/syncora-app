@@ -3,7 +3,15 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 // Routes that don't require a signed-in session. Everything else — every
 // page and every /api/* route — requires a valid Supabase session cookie.
-const PUBLIC_PATHS = ['/login', '/signup', '/auth/callback'];
+//
+// /portal and /api/portal are the client-facing portal: a project owner
+// generates a link (see components/modals/share-portal-modal.tsx) and
+// shares it with someone who has no account and isn't expected to sign in.
+// The token in the URL is the credential there, not a Supabase session —
+// see supabase/migrations/0008_client_portal.sql for why the token is
+// unguessable, and lib/db/storage.ts's getPortalDataByToken for exactly
+// what a valid token can read (a narrow, non-sensitive summary only).
+const PUBLIC_PATHS = ['/login', '/signup', '/auth/callback', '/portal', '/api/portal'];
 
 function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));

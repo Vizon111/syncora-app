@@ -24,7 +24,8 @@
 -- Storage itself has no concept of "workspace" — the real tenant check
 -- happens when files metadata is written to public.files (via addFile,
 -- which runs through supabaseAdmin and records workspace_id there).
-create policy if not exists "authenticated users can upload files"
+drop policy if exists "authenticated users can upload files" on storage.objects;
+create policy "authenticated users can upload files"
   on storage.objects for insert
   to authenticated
   with check (bucket_id = 'project-files');
@@ -32,14 +33,16 @@ create policy if not exists "authenticated users can upload files"
 -- Allow authenticated users to read objects — needed for createSignedUrl()
 -- to succeed server-side (it runs with the service role, but this policy
 -- also covers any future client-side reads).
-create policy if not exists "authenticated users can read files"
+drop policy if exists "authenticated users can read files" on storage.objects;
+create policy "authenticated users can read files"
   on storage.objects for select
   to authenticated
   using (bucket_id = 'project-files');
 
 -- Allow authenticated users to delete objects (used if/when a future
 -- cleanup job removes orphaned or fully-deleted files from Storage).
-create policy if not exists "authenticated users can delete files"
+drop policy if exists "authenticated users can delete files" on storage.objects;
+create policy "authenticated users can delete files"
   on storage.objects for delete
   to authenticated
   using (bucket_id = 'project-files');

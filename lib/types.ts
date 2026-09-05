@@ -415,3 +415,54 @@ export interface AppNotification {
   createdAt: string;
   urgent?: boolean;
 }
+
+// -----------------------------------------------------------------------------
+// Client Portal — a public, no-login-required read-only view of one project's
+// progress, shared via an unguessable token. See supabase/migrations/0008 and
+// app/api/portal/[token]/route.ts for what's exposed and why.
+// -----------------------------------------------------------------------------
+
+export interface ProjectPortalLink {
+  id: string;
+  projectId: string;
+  workspaceId: string;
+  token: string;
+  isEnabled: boolean;
+  createdById?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** A task as shown to a client on the public portal — deliberately reduced
+ *  to only what's safe to share. No description, no assignee identity, no
+ *  comments, no internal labels/estimates. */
+export interface PortalTaskSummary {
+  id: string;
+  title: string;
+  status: TaskStatus;
+  milestone: boolean;
+}
+
+/** A file as shown to a client on the public portal — metadata only; the
+ *  actual bytes are fetched through a separate signed-URL request scoped to
+ *  this same portal token, never a direct Storage path. */
+export interface PortalFileSummary {
+  id: string;
+  name: string;
+  size: number;
+  createdAt: string;
+}
+
+/** The full payload returned by GET /api/portal/[token] — everything the
+ *  public portal page needs to render, and nothing more. */
+export interface PortalData {
+  projectName: string;
+  projectDescription: string;
+  progress: number;
+  status: ProjectStatus;
+  deadline: string;
+  tasks: PortalTaskSummary[];
+  files: PortalFileSummary[];
+  workspaceName: string;
+}
+

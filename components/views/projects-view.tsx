@@ -12,14 +12,17 @@ import {
   Tag,
   ArrowRight,
   X,
+  Link2,
 } from 'lucide-react';
 import { useWorkspace } from '@/hooks/use-workspace-context';
 import { Avatar } from '@/components/ui/avatar';
 import { Project } from '@/lib/types';
+import { SharePortalModal } from '@/components/modals/share-portal-modal';
 
 export function ProjectsView() {
   const { t, projects, currentWorkspace, currentUser, setActiveView, setSelectedProjectId } = useWorkspace();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [shareProject, setShareProject] = useState<Project | null>(null);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [budget, setBudget] = useState('$25,000');
@@ -138,16 +141,26 @@ export function ProjectsView() {
                 <span className="text-slate-600 dark:text-neutral-300 font-medium">{proj.lead?.name}</span>
               </div>
 
-              <button
-                onClick={() => {
-                  setSelectedProjectId(proj.id);
-                  setActiveView('tasks');
-                }}
-                className="flex items-center gap-1 text-indigo-400 hover:text-indigo-300 font-medium text-xs"
-              >
-                <span>{t.nav.tasks}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShareProject(proj)}
+                  title="Share with client"
+                  className="flex items-center gap-1 text-slate-400 dark:text-neutral-500 hover:text-indigo-500 dark:hover:text-indigo-400 font-medium text-xs transition-colors"
+                >
+                  <Link2 className="w-3.5 h-3.5" />
+                </button>
+
+                <button
+                  onClick={() => {
+                    setSelectedProjectId(proj.id);
+                    setActiveView('tasks');
+                  }}
+                  className="flex items-center gap-1 text-indigo-400 hover:text-indigo-300 font-medium text-xs"
+                >
+                  <span>{t.nav.tasks}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -238,6 +251,11 @@ export function ProjectsView() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Share with Client — Portal Link Modal */}
+      {shareProject && (
+        <SharePortalModal project={shareProject} onClose={() => setShareProject(null)} />
       )}
     </div>
   );

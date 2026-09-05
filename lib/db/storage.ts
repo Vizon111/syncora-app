@@ -15,6 +15,10 @@ import {
   Role,
   RetroItem,
   SprintRetroSummary,
+  ProjectPortalLink,
+  PortalData,
+  PortalTaskSummary,
+  PortalFileSummary,
 } from '@/lib/types';
 import { hasPermission, Permission } from './rbac';
 import { supabaseAdmin } from './supabase-client';
@@ -1417,6 +1421,18 @@ class DatabaseStore {
     return data ? mapFile(data as unknown as FileRow) : null;
   }
 
+  /** Fetches a single file by id without a workspace filter. Used only by
+   *  the portal download route, which has already independently confirmed
+   *  (via getPortalDataByToken) that this fileId belongs to the project the
+   *  caller's token grants access to — so re-deriving and re-checking a
+   *  workspaceId here would be redundant, not safer. Do not use this from
+   *  any authenticated route; use getFileById there instead. */
+  async getFileByIdUnscoped(fileId: string): Promise<FileItem | null> {
+    const { data, error } = await supabaseAdmin.from('files').select(FILE_SELECT).eq('id', fileId).maybeSingle();
+    if (error) throw new Error(`[db] getFileByIdUnscoped: ${error.message}`);
+    return data ? mapFile(data as unknown as FileRow) : null;
+  }
+
   async addFile(file: FileItem, actor: User): Promise<FileItem> {
     const { error } = await supabaseAdmin.from('files').insert({
       id: file.id,
@@ -1538,6 +1554,131 @@ class DatabaseStore {
     if (error) throw new Error(`[db] checkAiRateLimit: ${error.message}`);
     const row = Array.isArray(data) ? data[0] : data;
     return { allowed: row.allowed, retryAfterSeconds: row.retry_after_seconds ?? undefined };
+  }
+
+  // ---------------------------------------------------------------------
+  // Client Portal — public, token-gated read-only project links.
+  // See supabase/migrations/0008_client_portal.sql for the schema and the
+  // reasoning behind what's exposed. These methods are workspace-scoped
+  // wherever a workspaceId is available (creation, listing), but
+  // getPortalDataByToken deliberately is NOT workspace-scoped by the
+  // caller — the token itself is the credential, since this is the one
+  // path in the app meant to be reached without authentication.
+  // ---------------------------------------------------------------------
+
+  private mapPortalLink(row: any): ProjectPortalLink {
+    return {
+      id: row.id,
+      projectId: row.project_id,
+      workspaceId: row.workspace_id,
+      token: row.token,
+      isEnabled: row.is_enabled,
+      createdById: row.created_by_id || undefined,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
+  }
+
+  /** Returns the existing portal link for a project, if one has already
+   *  been generated. Workspace-scoped: a caller can't fetch another
+   *  workspace's link by guessing a projectId. */
+  async getPortalLinkForProject(projectId: string, workspaceId: string): Promise<ProjectPortalLink | null> {
+    const { data, error } = await supabaseAdmin
+      .from('project_portal_links')
+      .select('*')
+      .eq('project_id', projectId)
+      .eq('workspace_id', workspaceId)
+      .maybeSingle();
+    if (error) throw new Error(`[db] getPortalLinkForProject: ${error.message}`);
+    return data ? this.mapPortalLink(data) : null;
+  }
+
+  /** Creates a portal link for a project if one doesn't already exist, or
+   *  returns the existing one (idempotent — clicking "Share with client"
+   *  twice shouldn't generate two live tokens for the same project). The
+   *  token is server-generated (gen_random_uuid() default in the schema),
+   *  never client-supplied. */
+  async createPortalLink(projectId: string, workspaceId: string, actorId: string): Promise<ProjectPortalLink> {
+    const existing = await this.getPortalLinkForProject(projectId, workspaceId);
+    if (existing) return existing;
+
+    const { data, error } = await supabaseAdmin
+      .from('project_portal_links')
+      .insert({ project_id: projectId, workspace_id: workspaceId, created_by_id: actorId })
+      .select('*')
+      .single();
+    if (error) throw new Error(`[db] createPortalLink: ${error.message}`);
+    return this.mapPortalLink(data);
+  }
+
+  /** Toggles a portal link on/off without deleting it (deleting would free
+   *  the token for reuse on a different project later, which is more
+   *  confusing than just flipping is_enabled and keeping the same link
+   *  disabled). Workspace-scoped. */
+  async setPortalLinkEnabled(projectId: string, workspaceId: string, isEnabled: boolean): Promise<ProjectPortalLink> {
+    const { data, error } = await supabaseAdmin
+      .from('project_portal_links')
+      .update({ is_enabled: isEnabled })
+      .eq('project_id', projectId)
+      .eq('workspace_id', workspaceId)
+      .select('*')
+      .single();
+    if (error) throw new Error(`[db] setPortalLinkEnabled: ${error.message}`);
+    return this.mapPortalLink(data);
+  }
+
+  /** Resolves a public portal token into the narrow read-only payload the
+   *  client-facing page renders. Returns null for an unknown token OR a
+   *  disabled link — the API route treats both identically (a generic
+   *  "not found") so a disabled link doesn't leak the fact that it once
+   *  existed. This is the only read path in the app that is intentionally
+   *  reachable without an authenticated session. */
+  async getPortalDataByToken(token: string): Promise<PortalData | null> {
+    const { data: link, error: linkError } = await supabaseAdmin
+      .from('project_portal_links')
+      .select('*')
+      .eq('token', token)
+      .eq('is_enabled', true)
+      .maybeSingle();
+    if (linkError) throw new Error(`[db] getPortalDataByToken (link): ${linkError.message}`);
+    if (!link) return null;
+
+    const project = await this.getProjectById(link.project_id, link.workspace_id);
+    if (!project) return null;
+
+    const workspace = await this.getWorkspaceById(link.workspace_id);
+
+    const tasks = await this.getTasks(link.workspace_id, link.project_id);
+    const taskSummaries: PortalTaskSummary[] = tasks.map((t) => ({
+      id: t.id,
+      title: t.title,
+      status: t.status,
+      milestone: Boolean(t.milestone),
+    }));
+
+    const { data: fileRows, error: filesError } = await supabaseAdmin
+      .from('files')
+      .select('id, name, file_size, created_at')
+      .eq('workspace_id', link.workspace_id)
+      .eq('project_id', link.project_id);
+    if (filesError) throw new Error(`[db] getPortalDataByToken (files): ${filesError.message}`);
+    const fileSummaries: PortalFileSummary[] = (fileRows || []).map((f: any) => ({
+      id: f.id,
+      name: f.name,
+      size: f.file_size,
+      createdAt: f.created_at,
+    }));
+
+    return {
+      projectName: project.name,
+      projectDescription: project.description,
+      progress: project.progress,
+      status: project.status,
+      deadline: project.deadline,
+      tasks: taskSummaries,
+      files: fileSummaries,
+      workspaceName: workspace?.name || '',
+    };
   }
 }
 
