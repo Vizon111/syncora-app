@@ -144,7 +144,7 @@ export function ProjectsView() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setShareProject(proj)}
-                  title="Share with client"
+                  title="Client updates"
                   className="flex items-center gap-1 text-slate-400 dark:text-neutral-500 hover:text-indigo-500 dark:hover:text-indigo-400 font-medium text-xs transition-colors"
                 >
                   <Link2 className="w-3.5 h-3.5" />
