@@ -1402,6 +1402,21 @@ class DatabaseStore {
     return (data as unknown as FileRow[]).map(mapFile);
   }
 
+  /** Fetches a single file by id, scoped to a workspace (tenant boundary
+   *  enforced via the eq('workspace_id', ...) filter — a caller can't fetch
+   *  another workspace's file by guessing its id). Used by the signed
+   *  download-URL route, which needs the row's storage_path. */
+  async getFileById(fileId: string, workspaceId: string): Promise<FileItem | null> {
+    const { data, error } = await supabaseAdmin
+      .from('files')
+      .select(FILE_SELECT)
+      .eq('id', fileId)
+      .eq('workspace_id', workspaceId)
+      .maybeSingle();
+    if (error) throw new Error(`[db] getFileById: ${error.message}`);
+    return data ? mapFile(data as unknown as FileRow) : null;
+  }
+
   async addFile(file: FileItem, actor: User): Promise<FileItem> {
     const { error } = await supabaseAdmin.from('files').insert({
       id: file.id,

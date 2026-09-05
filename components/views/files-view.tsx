@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Paperclip,
   UploadCloud,
@@ -12,10 +12,15 @@ import {
   Eye,
   X,
   File,
+  Download,
+  Loader2,
 } from 'lucide-react';
 import { useWorkspace } from '@/hooks/use-workspace-context';
 import { useToast } from '@/hooks/use-toast';
 import { FileItem } from '@/lib/types';
+import { STORAGE_BUCKET } from '@/lib/storage/constants';
+
+const MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024; // 25 MB — generous for docs/specs, keeps storage costs sane
 
 export function FilesView() {
   const { t, files, uploadFile, deleteFile, currentWorkspace, currentUser } = useWorkspace();
@@ -23,36 +28,103 @@ export function FilesView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filteredFiles = files.filter((f) =>
     f.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleFileUploadSimulated = async (fileName: string, contentText: string, mimeType: string) => {
+  /** Uploads the real file bytes to Supabase Storage, then records the
+   *  metadata (including the storage path) in the files table. Text-based
+   *  files also get their content extracted client-side for RAG indexing —
+   *  binary files (PDFs, images) skip that and just get an empty
+   *  extractedText, which is fine: they're still downloadable, just not
+   *  searchable by the AI assistant yet. */
+  const handleRealUpload = async (file: globalThis.File) => {
     if (currentUser.role === 'viewer') {
       error(t.toasts.permDenied);
       return;
     }
-    setIsUploading(true);
-    const uploaded = await uploadFile({
-      name: fileName,
-      size: Math.max(1024 * 12, contentText.length * 4),
-      type: mimeType,
-      extractedText: contentText,
-      isIndexedForRag: true,
-      projectId: 'prj_flowspace_core',
-    });
-    setIsUploading(false);
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      error(t.files.fileTooLarge || 'File is too large (max 25MB)');
+      return;
+    }
 
-    if (uploaded) {
-      success(
-        `${t.toasts.fileUploaded}: «${uploaded.name}»`,
-        undefined,
-        async () => {
-          await deleteFile(uploaded.id);
+    setIsUploading(true);
+    try {
+      const { createSupabaseBrowserClient } = await import('@/lib/supabase/client');
+      const supabase = createSupabaseBrowserClient();
+
+      const storagePath = `${currentWorkspace!.id}/${crypto.randomUUID()}-${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .upload(storagePath, file, { contentType: file.type || 'application/octet-stream' });
+
+      if (uploadError) throw uploadError;
+
+      // Best-effort text extraction for RAG indexing — only for text-like
+      // files; binary formats (pdf/png/etc) are skipped rather than reading
+      // garbage bytes as "text".
+      let extractedText = '';
+      const isTextLike = file.type.startsWith('text/') || /\.(md|txt|json|csv)$/i.test(file.name);
+      if (isTextLike) {
+        try {
+          extractedText = await file.text();
+        } catch {
+          // non-fatal — file still uploads and downloads fine without it
         }
+      }
+
+      const uploaded = await uploadFile({
+        name: file.name,
+        size: file.size,
+        type: file.type || 'application/octet-stream',
+        url: storagePath,
+        extractedText,
+        isIndexedForRag: isTextLike && extractedText.length > 0,
+        projectId: 'prj_flowspace_core',
+      });
+
+      if (uploaded) {
+        success(`${t.toasts.fileUploaded}: «${uploaded.name}»`);
+      } else {
+        // Metadata insert failed after the blob already landed in Storage —
+        // clean up the orphaned object so it doesn't linger unreferenced.
+        await supabase.storage.from(STORAGE_BUCKET).remove([storagePath]);
+        error(t.toasts.uploadFailed);
+      }
+    } catch {
+      error(t.toasts.uploadFailed);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDownload = async (file: FileItem) => {
+    if (!file.url) {
+      error(t.files.noStoredContent || 'This file has no downloadable content');
+      return;
+    }
+    setDownloadingId(file.id);
+    try {
+      const res = await fetch(
+        `/api/files/download-url?fileId=${encodeURIComponent(file.id)}&workspaceId=${encodeURIComponent(currentWorkspace!.id)}`
       );
+      const data = await res.json();
+      if (!res.ok || !data.downloadUrl) throw new Error(data.error || 'Failed to get download link');
+
+      const link = document.createElement('a');
+      link.href = data.downloadUrl;
+      link.download = data.name || file.name;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch {
+      error(t.toasts.downloadFailed);
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -61,14 +133,14 @@ export function FilesView() {
     setDragOver(false);
     const droppedFiles = Array.from(e.dataTransfer.files);
     if (droppedFiles.length > 0) {
-      const file = droppedFiles[0];
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const text = (event.target?.result as string) || `Extracted text from ${file.name}`;
-        handleFileUploadSimulated(file.name, text, file.type || 'text/plain');
-      };
-      reader.readAsText(file);
+      handleRealUpload(droppedFiles[0]);
     }
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const picked = e.target.files?.[0];
+    if (picked) handleRealUpload(picked);
+    e.target.value = ''; // allow re-selecting the same file later
   };
 
   return (
@@ -83,17 +155,18 @@ export function FilesView() {
         </div>
 
         <div className="flex items-center gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            onChange={handleFileInputChange}
+            className="hidden"
+          />
           <button
-            onClick={() =>
-              handleFileUploadSimulated(
-                `Security_Audit_Report_${Date.now().toString().slice(-4)}.pdf`,
-                `Flowspace Multi-Tenant Security Audit (2026): Zero data leakage across tenant boundaries confirmed. RBAC checks executed on all GraphQL & REST endpoints.`,
-                'application/pdf'
-              )
-            }
-            className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-lg shadow-indigo-600/20 transition-colors"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+            className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-200 disabled:text-slate-400 dark:disabled:bg-neutral-800 dark:disabled:text-neutral-600 rounded-lg shadow-lg shadow-indigo-600/20 transition-colors"
           >
-            <UploadCloud className="w-4 h-4" />
+            {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}
             <span>{t.files.uploadButton}</span>
           </button>
         </div>
@@ -107,7 +180,8 @@ export function FilesView() {
         }}
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
-        className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all ${
+        onClick={() => fileInputRef.current?.click()}
+        className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer ${
           dragOver
             ? 'border-indigo-500 bg-indigo-950/20 scale-[0.99]'
             : 'border-slate-200 dark:border-neutral-800 bg-white/40 dark:bg-neutral-900/40 hover:border-slate-300 dark:hover:border-neutral-700'
@@ -175,6 +249,18 @@ export function FilesView() {
                   <td className="px-4 py-3.5 text-slate-500 dark:text-neutral-400">{file.uploadedBy?.name || t.tasks.teamDefault}</td>
                   <td className="px-4 py-3.5 text-right space-x-2">
                     <button
+                      onClick={() => handleDownload(file)}
+                      disabled={!file.url || downloadingId === file.id}
+                      className="p-1.5 text-slate-500 dark:text-neutral-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-neutral-800 disabled:opacity-30 disabled:cursor-not-allowed rounded transition-colors"
+                      title={file.url ? (t.files.downloadFile || 'Download') : (t.files.noStoredContent || 'No stored content')}
+                    >
+                      {downloadingId === file.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Download className="w-4 h-4" />
+                      )}
+                    </button>
+                    <button
                       onClick={() => setSelectedFile(file)}
                       className="p-1.5 text-slate-500 dark:text-neutral-400 hover:text-slate-800 dark:hover:text-neutral-100 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded transition-colors"
                       title={t.files.previewText}
@@ -194,11 +280,18 @@ export function FilesView() {
                             `${t.toasts.fileDeleted}: «${fileToDelete.name}»`,
                             undefined,
                             async () => {
+                              // Note: this re-inserts metadata pointing at the
+                              // same storage_path. We deliberately don't
+                              // delete the underlying Storage object on
+                              // delete (see comment below), so the restored
+                              // row still resolves to real, downloadable
+                              // content.
                               await uploadFile({
                                 id: fileToDelete.id,
                                 name: fileToDelete.name,
                                 size: fileToDelete.size,
                                 type: fileToDelete.type,
+                                url: fileToDelete.url,
                                 extractedText: fileToDelete.extractedText,
                                 isIndexedForRag: fileToDelete.isIndexedForRag,
                                 projectId: fileToDelete.projectId,
