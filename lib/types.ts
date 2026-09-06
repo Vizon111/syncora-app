@@ -42,6 +42,7 @@ export interface Project {
   status: ProjectStatus;
   progress: number; // 0 to 100
   budget?: string;
+  hourlyRate?: number; // used by Time-to-Invoice to bill logged hours; project-level since a freelancer usually has one rate per client/project, not per invoice
   deadline: string;
   leadId: string;
   lead: User;

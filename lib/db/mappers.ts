@@ -64,6 +64,7 @@ export interface ProjectRow {
   status: string;
   progress: number;
   budget: string | null;
+  hourly_rate: number | string | null;
   deadline: string | null;
   lead_id: string | null;
   tags: string[];
@@ -324,6 +325,7 @@ export function mapProject(row: ProjectRow): Project {
     status: row.status as Project['status'],
     progress: row.progress,
     budget: row.budget || undefined,
+    hourlyRate: row.hourly_rate != null ? Number(row.hourly_rate) : undefined,
     deadline: row.deadline || '',
     leadId: row.lead_id || '',
     lead: row.lead ? mapUser(row.lead) : ({ id: row.lead_id || '' } as User),

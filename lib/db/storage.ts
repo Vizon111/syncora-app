@@ -338,7 +338,7 @@ class DatabaseStore {
   // ---------------------------------------------------------------------
 
   private readonly PROJECT_SELECT = `
-    id, workspace_id, name, key, color, description, status, progress, budget, deadline, lead_id, tags,
+    id, workspace_id, name, key, color, description, status, progress, budget, hourly_rate, deadline, lead_id, tags,
     created_at, updated_at,
     lead:lead_id (${USER_SELECT}),
     project_members (user_id)
@@ -400,6 +400,7 @@ class DatabaseStore {
         status: project.status,
         progress: project.progress,
         budget: project.budget,
+        hourly_rate: project.hourlyRate ?? null,
         deadline: project.deadline,
         lead_id: project.leadId,
         tags: project.tags,

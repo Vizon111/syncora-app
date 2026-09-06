@@ -49,6 +49,7 @@ interface WorkspaceContextType {
   switchWorkspace: (workspaceId: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateProfile: (updates: { name?: string; avatarUrl?: string }) => Promise<User | null>;
+  updateProjectHourlyRate: (projectId: string, hourlyRate: number | null) => Promise<boolean>;
   createTask: (task: Partial<Task>) => Promise<Task | null>;
   updateTask: (task: Task) => Promise<Task | null>;
   deleteTask: (taskId: string) => Promise<boolean>;
@@ -256,6 +257,26 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       return null;
     }
   }, []);
+
+  const updateProjectHourlyRate = useCallback(
+    async (projectId: string, hourlyRate: number | null) => {
+      try {
+        const res = await fetch('/api/projects/hourly-rate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ projectId, workspaceId: currentWorkspace?.id, hourlyRate }),
+        });
+        if (!res.ok) throw new Error('Failed to update hourly rate');
+        const { project } = await res.json();
+        setProjects((prev) => prev.map((p) => (p.id === projectId ? project : p)));
+        return true;
+      } catch (e) {
+        console.error('[updateProjectHourlyRate]', e);
+        return false;
+      }
+    },
+    [currentWorkspace]
+  );
 
   // Handle incoming real-time events
   const handleRealtimeEvent = useCallback((event: RealtimeEvent) => {
@@ -1016,6 +1037,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         switchWorkspace,
         signOut,
         updateProfile,
+        updateProjectHourlyRate,
         createTask,
         updateTask,
         deleteTask,
