@@ -95,6 +95,70 @@ export async function retrieveWorkspaceContext(workspaceId: string, query: strin
 }
 
 /**
+ * Execute Workspace RAG Query with Gemini 3.7 Flash, streaming text chunks
+ * as they arrive. Citations and any action proposal are determined before
+ * the model call even starts (citations from retrieveWorkspaceContext,
+ * action proposal from simple keyword matching on the user's prompt — see
+ * the non-streaming version below for why neither depends on the model's
+ * output), so the caller gets them back immediately alongside the async
+ * generator of text chunks, rather than waiting for generation to finish.
+ */
+export async function executeRagChatStream(
+  workspaceId: string,
+  userPrompt: string,
+  chatHistory: { role: 'user' | 'assistant'; content: string }[] = []
+): Promise<{
+  citations: AiCitation[];
+  actionProposal?: AiActionProposal;
+  textStream: AsyncGenerator<string>;
+}> {
+  const ai = getGeminiClient();
+  const contextResults = await retrieveWorkspaceContext(workspaceId, userPrompt);
+  const { citations, contextText } = buildCitationsAndContext(contextResults);
+  const systemInstruction = buildSystemInstruction(contextText);
+  const actionProposal = detectActionProposal(userPrompt);
+
+  const formattedContents = [
+    ...chatHistory.slice(-4).map((m) => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.content }],
+    })),
+    { role: 'user', parts: [{ text: userPrompt }] },
+  ];
+
+  async function* streamChunks(): AsyncGenerator<string> {
+    try {
+      const stream = await ai.models.generateContentStream({
+        model: 'gemini-3.7-flash',
+        contents: formattedContents as any,
+        config: { systemInstruction, temperature: 0.2 },
+      });
+      for await (const chunk of stream) {
+        if (chunk.text) yield chunk.text;
+      }
+    } catch (err) {
+      console.error('Gemini RAG Streaming Error:', err);
+      // Fall back to whatever context we found, same as the non-streaming
+      // path's catch block — better than a dead stream with no explanation.
+      if (contextResults.length > 0) {
+        yield (
+          `На основе данных вашего workspace:\n\n` +
+          contextResults.map((c) => `• **${c.sourceTitle}**: ${c.snippet}`).join('\n\n')
+        );
+      } else {
+        yield 'Не найдено достаточно информации в workspace.';
+      }
+    }
+  }
+
+  return {
+    citations: contextResults.length > 0 ? citations : [],
+    actionProposal,
+    textStream: streamChunks(),
+  };
+}
+
+/**
  * Execute Workspace RAG Query with Gemini 3.7 Flash
  */
 export async function executeRagChat(
@@ -104,38 +168,8 @@ export async function executeRagChat(
 ): Promise<{ text: string; citations: AiCitation[]; actionProposal?: AiActionProposal }> {
   const ai = getGeminiClient();
   const contextResults = await retrieveWorkspaceContext(workspaceId, userPrompt);
-
-  const citations: AiCitation[] = contextResults.map((r, i) => ({
-    id: `cit_${i}_${r.sourceId}`,
-    sourceType: r.sourceType,
-    sourceId: r.sourceId,
-    sourceTitle: r.sourceTitle,
-    snippet: r.snippet.length > 150 ? r.snippet.slice(0, 150) + '...' : r.snippet,
-    score: Math.min(0.99, 0.6 + r.score * 0.05),
-  }));
-
-  const contextText = contextResults
-    .map(
-      (r, idx) =>
-        `[Source #${idx + 1}: ${r.sourceType.toUpperCase()} "${r.sourceTitle}"]\n${r.snippet}\n`
-    )
-    .join('\n---\n');
-
-  const systemInstruction = `You are Flowspace AI, an intelligent workspace knowledge engine and collaboration assistant for team workspaces.
-You have access to the real-time context of the current workspace: projects, tasks, documents, files, and comments.
-
-RULES FOR ANSWERING:
-1. ALWAYS ground your answers in the provided workspace context below.
-2. If the user asks about specific tasks (e.g., "какие задачи по проекту Alpha ещё не завершены?", "what tasks are open?"), list the real tasks from the context with their statuses, assignees, and priorities.
-3. If the user asks to summarize a document, summarize the actual text from the document context.
-4. CITE YOUR SOURCES: When referencing information, mention the document or task name (e.g. "[PRD Flowspace Core]").
-5. NO HALLUCINATIONS: If the provided context does NOT contain enough relevant information to answer accurately, you MUST explicitly state in the user's language:
-   "Не найдено достаточно информации в workspace." (or "Not enough information found in the current workspace.") Do not make up facts or invent non-existent tasks.
-6. SAFE ACTIONS: If the user asks you to create a task, update a task, or extract action items, propose the structured action in your response and describe what will be created.
-
-CURRENT WORKSPACE CONTEXT:
-${contextText.length > 0 ? contextText : '(No matching documents or tasks found in this workspace)'}
-`;
+  const { citations, contextText } = buildCitationsAndContext(contextResults);
+  const systemInstruction = buildSystemInstruction(contextText);
 
   try {
     const formattedContents = [
@@ -159,31 +193,7 @@ ${contextText.length > 0 ? contextText : '(No matching documents or tasks found 
     });
 
     const responseText = response.text || 'Не удалось сгенерировать ответ.';
-
-    let actionProposal: AiActionProposal | undefined;
-    const lowerPrompt = userPrompt.toLowerCase();
-    if (
-      lowerPrompt.includes('создай задачу') ||
-      lowerPrompt.includes('create task') ||
-      lowerPrompt.includes('выдели action items') ||
-      lowerPrompt.includes('создать 5 задач') ||
-      lowerPrompt.includes('action items')
-    ) {
-      actionProposal = {
-        id: crypto.randomUUID(),
-        type: 'create_task',
-        title: 'Создание задачи на основе запроса',
-        description: 'AI сформировал проект задачи из контекста workspace. Подтвердите создание в канбан-доске.',
-        payload: {
-          title: userPrompt.length > 60 ? userPrompt.slice(0, 60) + '...' : userPrompt,
-          projectId: DEMO_PROJECT_ID,
-          status: 'todo',
-          priority: 'high',
-        },
-        isDestructive: false,
-        status: 'pending',
-      };
-    }
+    const actionProposal = detectActionProposal(userPrompt);
 
     return {
       text: responseText,
@@ -204,4 +214,72 @@ ${contextText.length > 0 ? contextText : '(No matching documents or tasks found 
       citations: [],
     };
   }
+}
+
+// -----------------------------------------------------------------------------
+// Shared helpers — extracted so the streaming and non-streaming entry points
+// above build identical citations/context/system-prompt/action-detection
+// rather than maintaining two copies that could drift apart.
+// -----------------------------------------------------------------------------
+
+function buildCitationsAndContext(contextResults: RagSearchResult[]): { citations: AiCitation[]; contextText: string } {
+  const citations: AiCitation[] = contextResults.map((r, i) => ({
+    id: `cit_${i}_${r.sourceId}`,
+    sourceType: r.sourceType,
+    sourceId: r.sourceId,
+    sourceTitle: r.sourceTitle,
+    snippet: r.snippet.length > 150 ? r.snippet.slice(0, 150) + '...' : r.snippet,
+    score: Math.min(0.99, 0.6 + r.score * 0.05),
+  }));
+
+  const contextText = contextResults
+    .map((r, idx) => `[Source #${idx + 1}: ${r.sourceType.toUpperCase()} "${r.sourceTitle}"]\n${r.snippet}\n`)
+    .join('\n---\n');
+
+  return { citations, contextText };
+}
+
+function buildSystemInstruction(contextText: string): string {
+  return `You are Flowspace AI, an intelligent workspace knowledge engine and collaboration assistant for team workspaces.
+You have access to the real-time context of the current workspace: projects, tasks, documents, files, and comments.
+
+RULES FOR ANSWERING:
+1. ALWAYS ground your answers in the provided workspace context below.
+2. If the user asks about specific tasks (e.g., "какие задачи по проекту Alpha ещё не завершены?", "what tasks are open?"), list the real tasks from the context with their statuses, assignees, and priorities.
+3. If the user asks to summarize a document, summarize the actual text from the document context.
+4. CITE YOUR SOURCES: When referencing information, mention the document or task name (e.g. "[PRD Flowspace Core]").
+5. NO HALLUCINATIONS: If the provided context does NOT contain enough relevant information to answer accurately, you MUST explicitly state in the user's language:
+   "Не найдено достаточно информации в workspace." (or "Not enough information found in the current workspace.") Do not make up facts or invent non-existent tasks.
+6. SAFE ACTIONS: If the user asks you to create a task, update a task, or extract action items, propose the structured action in your response and describe what will be created.
+
+CURRENT WORKSPACE CONTEXT:
+${contextText.length > 0 ? contextText : '(No matching documents or tasks found in this workspace)'}
+`;
+}
+
+function detectActionProposal(userPrompt: string): AiActionProposal | undefined {
+  const lowerPrompt = userPrompt.toLowerCase();
+  if (
+    lowerPrompt.includes('создай задачу') ||
+    lowerPrompt.includes('create task') ||
+    lowerPrompt.includes('выдели action items') ||
+    lowerPrompt.includes('создать 5 задач') ||
+    lowerPrompt.includes('action items')
+  ) {
+    return {
+      id: crypto.randomUUID(),
+      type: 'create_task',
+      title: 'Создание задачи на основе запроса',
+      description: 'AI сформировал проект задачи из контекста workspace. Подтвердите создание в канбан-доске.',
+      payload: {
+        title: userPrompt.length > 60 ? userPrompt.slice(0, 60) + '...' : userPrompt,
+        projectId: DEMO_PROJECT_ID,
+        status: 'todo',
+        priority: 'high',
+      },
+      isDestructive: false,
+      status: 'pending',
+    };
+  }
+  return undefined;
 }

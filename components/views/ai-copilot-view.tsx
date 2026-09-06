@@ -69,9 +69,26 @@ export function AiCopilotView() {
       createdAt: timestamp,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    // The assistant message is created up front (empty) and appended to as
+    // deltas arrive, rather than only being added once the full response is
+    // known — that's what makes the text appear incrementally.
+    const assistantMessageId = `msg_ai_${Math.random().toString(36).substring(2, 9)}`;
+    const assistantMessage: AiMessage = {
+      id: assistantMessageId,
+      role: 'assistant',
+      content: '',
+      createdAt: new Date().toISOString(),
+    };
+
+    setMessages((prev) => [...prev, userMessage, assistantMessage]);
     if (!promptToSend) setInputPrompt('');
     setIsLoading(true);
+
+    const appendToAssistant = (patch: Partial<AiMessage>) => {
+      setMessages((prev) =>
+        prev.map((m) => (m.id === assistantMessageId ? { ...m, ...patch } : m))
+      );
+    };
 
     try {
       const history = messages.map((m) => ({ role: m.role, content: m.content }));
@@ -85,28 +102,52 @@ export function AiCopilotView() {
         }),
       });
 
-      const data = await res.json();
+      if (!res.ok || !res.body) throw new Error('Request failed');
 
-      const assistantMessage: AiMessage = {
-        id: `msg_ai_${Math.random().toString(36).substring(2, 9)}`,
-        role: 'assistant',
-        content: data.text || t.ai.notFound,
-        citations: data.citations || [],
-        actionProposal: data.actionProposal,
-        createdAt: new Date().toISOString(),
-      };
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let accumulatedText = '';
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        // SSE frames are separated by a blank line; split and keep any
+        // trailing partial frame in the buffer for the next chunk.
+        const frames = buffer.split('\n\n');
+        buffer = frames.pop() || '';
+
+        for (const frame of frames) {
+          const line = frame.trim();
+          if (!line.startsWith('data:')) continue;
+          const jsonStr = line.slice('data:'.length).trim();
+          if (!jsonStr) continue;
+
+          let event: { type: string; text?: string; citations?: AiCitation[]; actionProposal?: AiActionProposal | null; message?: string };
+          try {
+            event = JSON.parse(jsonStr);
+          } catch {
+            continue;
+          }
+
+          if (event.type === 'delta' && event.text) {
+            accumulatedText += event.text;
+            appendToAssistant({ content: accumulatedText });
+          } else if (event.type === 'done') {
+            appendToAssistant({
+              content: accumulatedText || t.ai.notFound,
+              citations: event.citations || [],
+              actionProposal: event.actionProposal || undefined,
+            });
+          } else if (event.type === 'error') {
+            appendToAssistant({ content: event.message || t.ai.errorMsg });
+          }
+        }
+      }
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `msg_err_${Math.random().toString(36).substring(2, 9)}`,
-          role: 'assistant',
-          content: t.ai.errorMsg,
-          createdAt: new Date().toISOString(),
-        },
-      ]);
+      appendToAssistant({ content: t.ai.errorMsg });
     } finally {
       setIsLoading(false);
     }
