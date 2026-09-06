@@ -31,6 +31,7 @@ interface WorkspaceContextType {
   currentWorkspace: Workspace;
   projects: Project[];
   createProject: (input: { name: string; description?: string; budget?: string; tags?: string[] }) => Promise<Project | null>;
+  deleteProject: (projectId: string) => Promise<boolean>;
   sprints: Sprint[];
   activeSprint: Sprint | null;
   tasks: Task[];
@@ -301,6 +302,25 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       } catch (e) {
         console.error('[createProject]', e);
         return null;
+      }
+    },
+    [currentWorkspace]
+  );
+
+  const deleteProject = useCallback(
+    async (projectId: string) => {
+      if (!currentWorkspace) return false;
+      try {
+        const res = await fetch(
+          `/api/projects?projectId=${encodeURIComponent(projectId)}&workspaceId=${encodeURIComponent(currentWorkspace.id)}`,
+          { method: 'DELETE' }
+        );
+        if (!res.ok) throw new Error('Failed to delete project');
+        setProjects((prev) => prev.filter((p) => p.id !== projectId));
+        return true;
+      } catch (e) {
+        console.error('[deleteProject]', e);
+        return false;
       }
     },
     [currentWorkspace]
@@ -1067,6 +1087,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         updateProfile,
         updateProjectHourlyRate,
         createProject,
+        deleteProject,
         createTask,
         updateTask,
         deleteTask,

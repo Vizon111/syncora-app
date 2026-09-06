@@ -53,3 +53,23 @@ export async function POST(req: NextRequest) {
   await db.createProject(newProj);
   return NextResponse.json({ project: newProj });
 }
+
+export async function DELETE(req: NextRequest) {
+  const authUser = await getAuthenticatedUser();
+  if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const user = await db.getUser(authUser.id);
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const { searchParams } = new URL(req.url);
+  const projectId = searchParams.get('projectId');
+  const workspaceId = searchParams.get('workspaceId') || DEMO_WORKSPACE_ID;
+  if (!projectId) return NextResponse.json({ error: 'projectId is required' }, { status: 400 });
+
+  const auth = await authorizeOrDeny(workspaceId, authUser.id, 'project:delete');
+  if (auth instanceof NextResponse) return auth;
+
+  const deleted = await db.deleteProject(projectId, workspaceId, user);
+  if (!deleted) return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+
+  return NextResponse.json({ success: true });
+}

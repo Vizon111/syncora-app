@@ -13,6 +13,8 @@ import {
   ArrowRight,
   X,
   Link2,
+  Trash2,
+  Loader2,
 } from 'lucide-react';
 import { useWorkspace } from '@/hooks/use-workspace-context';
 import { useToast } from '@/hooks/use-toast';
@@ -21,15 +23,30 @@ import { Project } from '@/lib/types';
 import { SharePortalModal } from '@/components/modals/share-portal-modal';
 
 export function ProjectsView() {
-  const { t, projects, currentWorkspace, currentUser, setActiveView, setSelectedProjectId, createProject } = useWorkspace();
-  const { error: showError } = useToast();
+  const { t, projects, currentWorkspace, currentUser, setActiveView, setSelectedProjectId, createProject, deleteProject } = useWorkspace();
+  const { error: showError, success } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [shareProject, setShareProject] = useState<Project | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [budget, setBudget] = useState('$25,000');
   const [tags, setTags] = useState('Frontend, Realtime');
+
+  const handleDeleteProject = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    const ok = await deleteProject(deleteTarget.id);
+    setIsDeleting(false);
+    if (ok) {
+      success(`"${deleteTarget.name}" deleted`);
+      setDeleteTarget(null);
+    } else {
+      showError('Failed to delete project. Please try again.');
+    }
+  };
 
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -146,6 +163,14 @@ export function ProjectsView() {
 
               <div className="flex items-center gap-3">
                 <button
+                  onClick={() => setDeleteTarget(proj)}
+                  title="Delete project"
+                  className="flex items-center gap-1 text-slate-400 dark:text-neutral-500 hover:text-rose-500 dark:hover:text-rose-400 font-medium text-xs transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+
+                <button
                   onClick={() => setShareProject(proj)}
                   title="Client updates"
                   className="flex items-center gap-1 text-slate-400 dark:text-neutral-500 hover:text-indigo-500 dark:hover:text-indigo-400 font-medium text-xs transition-colors"
@@ -260,6 +285,51 @@ export function ProjectsView() {
       {/* Share with Client — Portal Link Modal */}
       {shareProject && (
         <SharePortalModal project={shareProject} onClose={() => setShareProject(null)} />
+      )}
+
+      {/* Delete Project Confirmation */}
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/70 backdrop-blur-xs animate-in fade-in"
+          onClick={() => !isDeleting && setDeleteTarget(null)}
+        >
+          <div
+            className="w-full max-w-sm bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-xl shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-5 space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-600 dark:bg-rose-950/30 dark:border-rose-900/50 dark:text-rose-400">
+                  <Trash2 className="w-4 h-4" />
+                </div>
+                <h3 className="text-sm font-semibold text-slate-800 dark:text-neutral-100">Delete project?</h3>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-neutral-400 leading-relaxed">
+                This permanently deletes <strong className="text-slate-700 dark:text-neutral-200">{deleteTarget.name}</strong> and
+                every task, worklog, and client portal link tied to it. This can&apos;t be undone.
+              </p>
+            </div>
+            <div className="flex justify-end gap-2 px-5 pb-5">
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 text-xs text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-200 disabled:opacity-50"
+              >
+                {t.common.cancel}
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteProject}
+                disabled={isDeleting}
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-500 disabled:opacity-50 rounded-lg transition-colors"
+              >
+                {isDeleting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -411,6 +411,37 @@ class DatabaseStore {
     return project;
   }
 
+  /** Deletes a project and, via ON DELETE CASCADE foreign keys (see
+   *  migrations 0001, 0002, 0008), everything scoped to it: tasks, their
+   *  worklogs, project members, and its portal link. Files uploaded under
+   *  the project keep their metadata row (files.project_id has no cascade
+   *  — see 0001_core.sql) since a file's Storage object should outlive an
+   *  accidental project delete rather than silently vanish; orphaned file
+   *  cleanup is a separate concern this doesn't attempt to solve. */
+  async deleteProject(projectId: string, workspaceId: string, actor: User): Promise<boolean> {
+    const project = await this.getProjectById(projectId, workspaceId);
+    if (!project) return false;
+
+    const { error } = await supabaseAdmin.from('projects').delete().eq('id', projectId).eq('workspace_id', workspaceId);
+    if (error) throw new Error(`[db] deleteProject: ${error.message}`);
+
+    await this.logActivity({
+      id: crypto.randomUUID(),
+      workspaceId,
+      userId: actor.id,
+      userName: actor.name,
+      userAvatar: actor.avatar,
+      userRole: actor.role,
+      action: 'deleted_project',
+      targetType: 'project',
+      targetId: projectId,
+      targetName: project.name,
+      details: 'Deleted project',
+      createdAt: new Date().toISOString(),
+    });
+    return true;
+  }
+
   // ---------------------------------------------------------------------
   // Tasks
   // ---------------------------------------------------------------------

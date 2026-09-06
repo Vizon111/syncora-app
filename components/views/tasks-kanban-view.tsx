@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Plus,
   Search,
@@ -46,6 +46,8 @@ export function TasksKanbanView() {
     deleteTask,
     comments,
     addComment,
+    selectedProjectId,
+    setSelectedProjectId,
   } = useWorkspace();
   const { success, error } = useToast();
 
@@ -64,10 +66,21 @@ export function TasksKanbanView() {
   ];
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterProject, setFilterProject] = useState<string>('all');
+  const [filterProject, setFilterProject] = useState<string>(selectedProjectId || 'all');
   const [filterPriority, setFilterPriority] = useState<string>('all');
   const [filterSprint, setFilterSprint] = useState<string>('all');
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
+
+  // If we arrived here via "Kanban tasks" on a project card, the project
+  // was passed through selectedProjectId (see projects-view.tsx) and the
+  // filter above picks it up on mount. Clear it right after so navigating
+  // to Kanban from the sidebar next time doesn't inherit a stale filter
+  // from whatever project was last clicked.
+  useEffect(() => {
+    if (selectedProjectId) setSelectedProjectId(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [dragOverColumn, setDragOverColumn] = useState<TaskStatus | null>(null);
 
   // Modals state

@@ -279,7 +279,8 @@ export type ActivityAction =
   | 'uploaded_file'
   | 'added_comment'
   | 'resolved_comment'
-  | 'ai_action_executed';
+  | 'ai_action_executed'
+  | 'deleted_project';
 
 export interface ActivityLog {
   id: string;
