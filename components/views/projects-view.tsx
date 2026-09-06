@@ -15,13 +15,16 @@ import {
   Link2,
 } from 'lucide-react';
 import { useWorkspace } from '@/hooks/use-workspace-context';
+import { useToast } from '@/hooks/use-toast';
 import { Avatar } from '@/components/ui/avatar';
 import { Project } from '@/lib/types';
 import { SharePortalModal } from '@/components/modals/share-portal-modal';
 
 export function ProjectsView() {
-  const { t, projects, currentWorkspace, currentUser, setActiveView, setSelectedProjectId } = useWorkspace();
+  const { t, projects, currentWorkspace, currentUser, setActiveView, setSelectedProjectId, createProject } = useWorkspace();
+  const { error: showError } = useToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
   const [shareProject, setShareProject] = useState<Project | null>(null);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -32,22 +35,22 @@ export function ProjectsView() {
     e.preventDefault();
     if (!name.trim()) return;
 
-    try {
-      await fetch('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          workspaceId: currentWorkspace.id,
-          name: name.trim(),
-          description: description.trim(),
-          budget,
-          tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
-        }),
-      });
+    setIsCreating(true);
+    const created = await createProject({
+      name: name.trim(),
+      description: description.trim(),
+      budget,
+      tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
+    });
+    setIsCreating(false);
+
+    if (created) {
       setIsCreateOpen(false);
       setName('');
       setDescription('');
-    } catch {}
+    } else {
+      showError('Failed to create project. Please try again.');
+    }
   };
 
   return (
@@ -243,9 +246,10 @@ export function ProjectsView() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-lg shadow-indigo-600/20"
+                  disabled={isCreating}
+                  className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-lg shadow-indigo-600/20"
                 >
-                  {t.projects.createTitle}
+                  {isCreating ? '...' : t.projects.createTitle}
                 </button>
               </div>
             </form>

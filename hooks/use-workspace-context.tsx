@@ -30,6 +30,7 @@ interface WorkspaceContextType {
   workspaces: Workspace[];
   currentWorkspace: Workspace;
   projects: Project[];
+  createProject: (input: { name: string; description?: string; budget?: string; tags?: string[] }) => Promise<Project | null>;
   sprints: Sprint[];
   activeSprint: Sprint | null;
   tasks: Task[];
@@ -273,6 +274,33 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       } catch (e) {
         console.error('[updateProjectHourlyRate]', e);
         return false;
+      }
+    },
+    [currentWorkspace]
+  );
+
+  const createProject = useCallback(
+    async (input: { name: string; description?: string; budget?: string; tags?: string[] }) => {
+      if (!currentWorkspace) return null;
+      try {
+        const res = await fetch('/api/projects', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ workspaceId: currentWorkspace.id, ...input }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Failed to create project');
+        }
+        const { project } = await res.json();
+        // Prepend rather than append — a newly created project is the one
+        // the user almost certainly wants to see/act on next, and putting
+        // it first avoids it being scrolled out of view in a long list.
+        setProjects((prev) => [project, ...prev]);
+        return project as Project;
+      } catch (e) {
+        console.error('[createProject]', e);
+        return null;
       }
     },
     [currentWorkspace]
@@ -1038,6 +1066,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
         signOut,
         updateProfile,
         updateProjectHourlyRate,
+        createProject,
         createTask,
         updateTask,
         deleteTask,
