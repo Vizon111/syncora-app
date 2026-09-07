@@ -19,6 +19,7 @@ import {
   PortalData,
   PortalTaskSummary,
   PortalFileSummary,
+  AiChatSession,
 } from '@/lib/types';
 import { hasPermission, Permission } from './rbac';
 import { supabaseAdmin } from './supabase-client';
@@ -1551,6 +1552,103 @@ class DatabaseStore {
   // AI messages
   // ---------------------------------------------------------------------
 
+  // ---------------------------------------------------------------------
+  // AI Chat Sessions (Copilot chat history) — see migration 0010. Sessions
+  // are private to the user who owns them (unlike ai_messages historically
+  // being workspace-wide), so every method here takes userId and scopes to
+  // it, not just workspaceId.
+  // ---------------------------------------------------------------------
+
+  private mapChatSession(row: any): AiChatSession {
+    return {
+      id: row.id,
+      workspaceId: row.workspace_id,
+      userId: row.user_id,
+      title: row.title,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
+  }
+
+  async getChatSessions(workspaceId: string, userId: string): Promise<AiChatSession[]> {
+    const { data, error } = await supabaseAdmin
+      .from('ai_chat_sessions')
+      .select('*')
+      .eq('workspace_id', workspaceId)
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false });
+    if (error) throw new Error(`[db] getChatSessions: ${error.message}`);
+    return (data || []).map((row) => this.mapChatSession(row));
+  }
+
+  async createChatSession(workspaceId: string, userId: string, title = 'New chat'): Promise<AiChatSession> {
+    const { data, error } = await supabaseAdmin
+      .from('ai_chat_sessions')
+      .insert({ workspace_id: workspaceId, user_id: userId, title })
+      .select('*')
+      .single();
+    if (error) throw new Error(`[db] createChatSession: ${error.message}`);
+    return this.mapChatSession(data);
+  }
+
+  async renameChatSession(sessionId: string, userId: string, title: string): Promise<AiChatSession | null> {
+    const { data, error } = await supabaseAdmin
+      .from('ai_chat_sessions')
+      .update({ title })
+      .eq('id', sessionId)
+      .eq('user_id', userId)
+      .select('*')
+      .maybeSingle();
+    if (error) throw new Error(`[db] renameChatSession: ${error.message}`);
+    return data ? this.mapChatSession(data) : null;
+  }
+
+  /** Bumps updated_at without changing anything else — called after a new
+   *  message lands in a session so getChatSessions' "most recently active
+   *  first" ordering reflects actual conversation activity, not just
+   *  rename timestamps. */
+  async touchChatSession(sessionId: string, userId: string): Promise<void> {
+    const { error } = await supabaseAdmin
+      .from('ai_chat_sessions')
+      .update({ updated_at: new Date().toISOString() })
+      .eq('id', sessionId)
+      .eq('user_id', userId);
+    if (error) throw new Error(`[db] touchChatSession: ${error.message}`);
+  }
+
+  async deleteChatSession(sessionId: string, userId: string): Promise<boolean> {
+    const { error, count } = await supabaseAdmin
+      .from('ai_chat_sessions')
+      .delete({ count: 'exact' })
+      .eq('id', sessionId)
+      .eq('user_id', userId);
+    if (error) throw new Error(`[db] deleteChatSession: ${error.message}`);
+    return (count || 0) > 0;
+  }
+
+  async getChatSessionMessages(sessionId: string, userId: string): Promise<AiMessage[]> {
+    // Ownership check first: a message query scoped only by session_id
+    // would let user B read user A's messages just by guessing/observing a
+    // session id, since ai_messages itself has no user_id-based RLS-style
+    // check in this admin-client code path.
+    const { data: session, error: sessionError } = await supabaseAdmin
+      .from('ai_chat_sessions')
+      .select('id')
+      .eq('id', sessionId)
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (sessionError) throw new Error(`[db] getChatSessionMessages (ownership check): ${sessionError.message}`);
+    if (!session) return [];
+
+    const { data, error } = await supabaseAdmin
+      .from('ai_messages')
+      .select('id, role, content, citations, action_proposal, created_at')
+      .eq('session_id', sessionId)
+      .order('created_at', { ascending: true });
+    if (error) throw new Error(`[db] getChatSessionMessages: ${error.message}`);
+    return (data as AiMessageRow[]).map(mapAiMessage);
+  }
+
   async getAiMessages(workspaceId: string): Promise<AiMessage[]> {
     const { data, error } = await supabaseAdmin
       .from('ai_messages')
@@ -1561,11 +1659,17 @@ class DatabaseStore {
     return (data as AiMessageRow[]).map(mapAiMessage);
   }
 
-  async addAiMessage(workspaceId: string, userId: string | null, message: AiMessage): Promise<AiMessage> {
+  async addAiMessage(
+    workspaceId: string,
+    userId: string | null,
+    message: AiMessage,
+    sessionId?: string
+  ): Promise<AiMessage> {
     const { error } = await supabaseAdmin.from('ai_messages').insert({
       id: message.id,
       workspace_id: workspaceId,
       user_id: userId,
+      session_id: sessionId || null,
       role: message.role,
       content: message.content,
       citations: message.citations || [],

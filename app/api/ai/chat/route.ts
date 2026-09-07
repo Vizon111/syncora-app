@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
   if (!authUser) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   const userId = authUser.id;
   const body = await req.json();
-  const { workspaceId, prompt, history } = body;
+  const { workspaceId, prompt, history, sessionId } = body;
 
   if (!prompt || !workspaceId) {
     return new Response(JSON.stringify({ error: 'Workspace ID and prompt are required' }), { status: 400 });
@@ -74,11 +74,49 @@ export async function POST(req: NextRequest) {
           history || []
         );
 
+        let fullText = '';
         for await (const chunk of textStream) {
+          fullText += chunk;
           send({ type: 'delta', text: chunk });
         }
 
         send({ type: 'done', citations, actionProposal: actionProposal || null });
+
+        // Persist both sides of the exchange if this message belongs to a
+        // saved session. Best-effort: a persistence failure shouldn't turn
+        // a successful chat response into an error the user sees — the
+        // stream has already been sent and closed from their perspective,
+        // so we just log and move on rather than trying to surface this
+        // after the fact.
+        if (sessionId) {
+          try {
+            await db.addAiMessage(
+              workspaceId,
+              userId,
+              { id: crypto.randomUUID(), role: 'user', content: prompt },
+              sessionId
+            );
+            await db.addAiMessage(
+              workspaceId,
+              userId,
+              { id: crypto.randomUUID(), role: 'assistant', content: fullText, citations, actionProposal },
+              sessionId
+            );
+            await db.touchChatSession(sessionId, userId);
+
+            // Auto-title new sessions from the first message, same as
+            // ChatGPT/Claude do — "New chat" is meaningless in a history
+            // list, but re-titling on every message would be pointless
+            // churn, so this only fires when history is empty (i.e. this
+            // is the session's first exchange).
+            if (!history || history.length === 0) {
+              const title = prompt.length > 60 ? prompt.slice(0, 60) + '...' : prompt;
+              await db.renameChatSession(sessionId, userId, title);
+            }
+          } catch (persistError) {
+            console.error('[chat] failed to persist session messages', persistError);
+          }
+        }
       } catch (error) {
         console.error('RAG Streaming Endpoint Error:', error);
         send({ type: 'error', message: 'Не найдено достаточно информации в workspace.' });

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   Sparkles,
   Send,
@@ -18,8 +18,9 @@ import {
 } from 'lucide-react';
 import { useWorkspace } from '@/hooks/use-workspace-context';
 import { Avatar } from '@/components/ui/avatar';
-import { AiMessage, AiActionProposal, AiCitation } from '@/lib/types';
+import { AiMessage, AiActionProposal, AiCitation, AiChatSession } from '@/lib/types';
 import { AiActionModal } from '@/components/modals/ai-action-modal';
+import { ChatSessionSidebar } from '@/components/ai/chat-session-sidebar';
 import Markdown from 'react-markdown';
 
 export function AiCopilotView() {
@@ -39,17 +40,31 @@ export function AiCopilotView() {
     'Create task for Alex Mercer: Optimize Yjs state vector caching',
   ];
 
-  const INITIAL_MESSAGE: AiMessage = {
-    id: 'msg_welcome',
-    role: 'assistant',
-    content: t.ai.welcomeMessage,
-    createdAt: '2026-08-27T00:00:00.000Z',
-  };
+  const INITIAL_MESSAGE: AiMessage = useMemo(
+    () => ({
+      id: 'msg_welcome',
+      role: 'assistant',
+      content: t.ai.welcomeMessage,
+      createdAt: '2026-08-27T00:00:00.000Z',
+    }),
+    [t.ai.welcomeMessage]
+  );
 
   const [messages, setMessages] = useState<AiMessage[]>([INITIAL_MESSAGE]);
   const [inputPrompt, setInputPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [activeProposal, setActiveProposal] = useState<AiActionProposal | null>(null);
+
+  // Chat history / sessions — see components/ai/chat-session-sidebar.tsx.
+  // activeSessionId is null until either the sidebar's "New chat" creates
+  // one or the user picks a past session; the very first message of a
+  // fresh conversation lazily creates the session (see handleSendPrompt)
+  // rather than creating one on every mount, so idly opening the Copilot
+  // tab doesn't spam empty sessions into the history list.
+  const [sessions, setSessions] = useState<AiChatSession[]>([]);
+  const [isLoadingSessions, setIsLoadingSessions] = useState(true);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -57,9 +72,106 @@ export function AiCopilotView() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
+  const loadSessions = useCallback(async () => {
+    setIsLoadingSessions(true);
+    try {
+      const res = await fetch(`/api/ai/chat-sessions?workspaceId=${encodeURIComponent(currentWorkspace.id)}`);
+      const data = await res.json();
+      setSessions(data.sessions || []);
+    } catch {
+      setSessions([]);
+    } finally {
+      setIsLoadingSessions(false);
+    }
+  }, [currentWorkspace.id]);
+
+  useEffect(() => {
+    // Wrapped in an IIFE (rather than calling the async loadSessions
+    // directly in the effect body) so the React Compiler recognizes this
+    // as the standard "fetch on mount" pattern rather than flagging a
+    // synchronous setState-in-effect concern — loadSessions' setState
+    // calls only run after the awaited fetch resolves, not synchronously
+    // during this effect's execution.
+    (async () => {
+      await loadSessions();
+    })();
+  }, [loadSessions]);
+
+  const handleNewChat = useCallback(() => {
+    setActiveSessionId(null);
+    setMessages([INITIAL_MESSAGE]);
+  }, [INITIAL_MESSAGE]);
+
+  const handleSelectSession = useCallback(async (sessionId: string) => {
+    setActiveSessionId(sessionId);
+    setIsLoadingMessages(true);
+    try {
+      const res = await fetch(`/api/ai/chat-sessions/${encodeURIComponent(sessionId)}`);
+      const data = await res.json();
+      const loaded: AiMessage[] = data.messages || [];
+      setMessages(loaded.length > 0 ? loaded : [INITIAL_MESSAGE]);
+    } catch {
+      setMessages([INITIAL_MESSAGE]);
+    } finally {
+      setIsLoadingMessages(false);
+    }
+  }, [INITIAL_MESSAGE]);
+
+  const handleRenameSession = useCallback(async (sessionId: string, title: string) => {
+    setSessions((prev) => prev.map((s) => (s.id === sessionId ? { ...s, title } : s)));
+    try {
+      await fetch(`/api/ai/chat-sessions/${encodeURIComponent(sessionId)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title }),
+      });
+    } catch {
+      // Local state already updated optimistically; a failed rename here
+      // is low-stakes enough (it'll just revert on next reload) not to
+      // warrant a toast interrupting the chat.
+    }
+  }, []);
+
+  const handleDeleteSession = useCallback(
+    async (sessionId: string) => {
+      setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+      if (sessionId === activeSessionId) handleNewChat();
+      try {
+        await fetch(`/api/ai/chat-sessions/${encodeURIComponent(sessionId)}`, { method: 'DELETE' });
+      } catch {
+        // Same reasoning as rename — reload will resync if this failed.
+      }
+    },
+    [activeSessionId, handleNewChat]
+  );
+
   const handleSendPrompt = React.useCallback(async (promptToSend?: string) => {
     const prompt = (promptToSend || inputPrompt).trim();
     if (!prompt || isLoading) return;
+
+    // Lazily create a session on the first message of a fresh conversation
+    // — this is why activeSessionId starts null instead of being created
+    // eagerly on mount (see the comment above its declaration).
+    let sessionId = activeSessionId;
+    if (!sessionId) {
+      try {
+        const res = await fetch('/api/ai/chat-sessions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ workspaceId: currentWorkspace.id }),
+        });
+        const data = await res.json();
+        if (data.session) {
+          sessionId = data.session.id;
+          setActiveSessionId(sessionId);
+          setSessions((prev) => [data.session, ...prev]);
+        }
+      } catch {
+        // If session creation fails, fall through and still answer the
+        // question — sessionId stays null, so the exchange just won't be
+        // persisted to history rather than blocking the chat entirely.
+      }
+    }
 
     const timestamp = new Date().toISOString();
     const userMessage: AiMessage = {
@@ -99,6 +211,7 @@ export function AiCopilotView() {
           workspaceId: currentWorkspace.id,
           prompt,
           history,
+          sessionId,
         }),
       });
 
@@ -150,8 +263,9 @@ export function AiCopilotView() {
       appendToAssistant({ content: t.ai.errorMsg });
     } finally {
       setIsLoading(false);
+      if (sessionId) loadSessions();
     }
-  }, [inputPrompt, isLoading, messages, currentUser.id, currentWorkspace.id, t.ai.notFound, t.ai.errorMsg]);
+  }, [inputPrompt, isLoading, messages, activeSessionId, currentUser.id, currentWorkspace.id, t.ai.notFound, t.ai.errorMsg, loadSessions]);
 
   const handleCitationClick = (citation: AiCitation) => {
     if (citation.sourceType === 'document') {
@@ -167,7 +281,18 @@ export function AiCopilotView() {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-64px)] max-w-5xl mx-auto w-full p-6 animate-in fade-in duration-200">
+    <div className="flex-1 flex h-[calc(100vh-64px)] w-full animate-in fade-in duration-200">
+      <ChatSessionSidebar
+        sessions={sessions}
+        activeSessionId={activeSessionId}
+        isLoading={isLoadingSessions}
+        onSelect={handleSelectSession}
+        onNewChat={handleNewChat}
+        onRename={handleRenameSession}
+        onDelete={handleDeleteSession}
+      />
+
+      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full p-6 min-w-0">
       {/* Top Banner: Tenant Knowledge Grounding Info */}
       <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-200 dark:border-neutral-800">
         <div className="flex items-center gap-3">
@@ -193,6 +318,14 @@ export function AiCopilotView() {
         </div>
       </div>
 
+      {isLoadingMessages ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-6 h-6 rounded-full bg-indigo-600/20 flex items-center justify-center text-indigo-400 animate-pulse">
+            <Sparkles className="w-3.5 h-3.5" />
+          </div>
+        </div>
+      ) : (
+      <>
       {/* Messages Scroll Area */}
       <div className="flex-1 overflow-y-auto space-y-4 custom-scrollbar pr-2 mb-4">
         {messages.map((msg) => {
@@ -351,6 +484,9 @@ export function AiCopilotView() {
           </button>
         </div>
       </form>
+      </>
+      )}
+      </div>
 
       {/* Action Confirmation Modal */}
       <AiActionModal proposal={activeProposal} onClose={() => setActiveProposal(null)} />

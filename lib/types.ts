@@ -327,6 +327,17 @@ export interface AiMessage {
   createdAt?: string;
 }
 
+/** A saved AI Copilot conversation — the grouping entity for AiMessage
+ *  rows, private to the user who started it (see migration 0010). */
+export interface AiChatSession {
+  id: string;
+  workspaceId: string;
+  userId: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface RealtimePresenceUser {
   userId: string;
   name: string;
