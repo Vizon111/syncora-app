@@ -302,15 +302,15 @@ export function AiCopilotView() {
 
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full p-6 min-w-0">
       {/* Top Banner: Tenant Knowledge Grounding Info */}
-      <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-200 dark:border-neutral-800">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
+      <div className="flex items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-200 dark:border-neutral-800">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="p-2 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 shrink-0">
             <Sparkles className="w-5 h-5" />
           </div>
-          <div>
-            <h2 className="text-base font-bold text-slate-800 dark:text-neutral-100 flex items-center gap-2">
+          <div className="min-w-0">
+            <h2 className="text-base font-bold text-slate-800 dark:text-neutral-100 flex items-center gap-2 flex-wrap">
               {t.ai.title}
-              <span className="text-2xs font-normal px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span className="text-2xs font-normal px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 whitespace-nowrap">
                 {t.ai.tenantIsolated} {currentWorkspace.name}
               </span>
             </h2>
@@ -320,10 +320,10 @@ export function AiCopilotView() {
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-2">
+        <div className="hidden sm:flex items-center gap-2 shrink-0">
           <ChatHistoryToggle onClick={() => setIsHistoryOpen(true)} sessionCount={sessions.length} />
-          <div className="flex items-center gap-2 text-2xs text-slate-500 dark:text-neutral-400 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 px-3 py-1.5 rounded-lg">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <div className="flex items-center gap-2 text-2xs text-slate-500 dark:text-neutral-400 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 px-3 py-1.5 rounded-lg whitespace-nowrap">
+            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>{t.ai.antiHallucination}</span>
           </div>
         </div>

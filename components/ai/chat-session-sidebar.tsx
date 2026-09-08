@@ -200,11 +200,13 @@ export function ChatSessionSidebar({
   );
 }
 
-/** Small header button that opens the history drawer, with a badge when
- *  there's history to show. Exported separately from the drawer itself so
- *  AiCopilotView can place it in its top banner, next to the existing
- *  anti-hallucination badge, rather than the drawer needing its own
- *  always-visible trigger floating somewhere. */
+/** Compact icon-only button that opens the history drawer — a small
+ *  square button (matching the app's other icon buttons, e.g. the
+ *  notification bell) rather than a labeled pill, so it reads as a
+ *  secondary header control, not a primary action competing with "New
+ *  chat" or the anti-hallucination badge. A small dot badge (not a
+ *  number) signals "you have history" without the button growing to fit
+ *  a count. */
 export function ChatHistoryToggle({
   onClick,
   sessionCount,
@@ -215,14 +217,13 @@ export function ChatHistoryToggle({
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 text-2xs text-slate-500 dark:text-neutral-400 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 hover:border-indigo-500/40 px-3 py-1.5 rounded-lg transition-colors"
+      title="Chat history"
+      aria-label="Chat history"
+      className="relative w-9 h-9 flex items-center justify-center text-slate-500 dark:text-neutral-400 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 hover:border-indigo-500/40 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-colors shrink-0"
     >
       <History className="w-4 h-4" />
-      <span>History</span>
       {sessionCount > 0 && (
-        <span className="px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-neutral-800 text-3xs font-semibold">
-          {sessionCount}
-        </span>
+        <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-indigo-500" />
       )}
     </button>
   );
