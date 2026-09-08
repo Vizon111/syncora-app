@@ -20,7 +20,7 @@ import { useWorkspace } from '@/hooks/use-workspace-context';
 import { Avatar } from '@/components/ui/avatar';
 import { AiMessage, AiActionProposal, AiCitation, AiChatSession } from '@/lib/types';
 import { AiActionModal } from '@/components/modals/ai-action-modal';
-import { ChatSessionSidebar } from '@/components/ai/chat-session-sidebar';
+import { ChatSessionSidebar, ChatHistoryToggle } from '@/components/ai/chat-session-sidebar';
 import Markdown from 'react-markdown';
 
 export function AiCopilotView() {
@@ -65,6 +65,10 @@ export function AiCopilotView() {
   const [isLoadingSessions, setIsLoadingSessions] = useState(true);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  // History is a drawer the user opens on demand (see ChatSessionSidebar),
+  // not a permanent column — starts closed so it doesn't sit next to the
+  // app's own left sidebar as a second, always-visible one.
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -100,10 +104,12 @@ export function AiCopilotView() {
   const handleNewChat = useCallback(() => {
     setActiveSessionId(null);
     setMessages([INITIAL_MESSAGE]);
+    setIsHistoryOpen(false);
   }, [INITIAL_MESSAGE]);
 
   const handleSelectSession = useCallback(async (sessionId: string) => {
     setActiveSessionId(sessionId);
+    setIsHistoryOpen(false);
     setIsLoadingMessages(true);
     try {
       const res = await fetch(`/api/ai/chat-sessions/${encodeURIComponent(sessionId)}`);
@@ -286,6 +292,8 @@ export function AiCopilotView() {
         sessions={sessions}
         activeSessionId={activeSessionId}
         isLoading={isLoadingSessions}
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
         onSelect={handleSelectSession}
         onNewChat={handleNewChat}
         onRename={handleRenameSession}
@@ -312,9 +320,12 @@ export function AiCopilotView() {
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-2 text-2xs text-slate-500 dark:text-neutral-400 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 px-3 py-1.5 rounded-lg">
-          <ShieldCheck className="w-4 h-4 text-emerald-400" />
-          <span>{t.ai.antiHallucination}</span>
+        <div className="hidden sm:flex items-center gap-2">
+          <ChatHistoryToggle onClick={() => setIsHistoryOpen(true)} sessionCount={sessions.length} />
+          <div className="flex items-center gap-2 text-2xs text-slate-500 dark:text-neutral-400 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 px-3 py-1.5 rounded-lg">
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <span>{t.ai.antiHallucination}</span>
+          </div>
         </div>
       </div>
 
